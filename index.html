@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="https://cdn.jsdelivr.net/npm/p5@2.0.5/lib/p5.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/p5.sound@0.2.0/dist/p5.sound.min.js"></script>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+    <link rel="shortcut icon" href="assets/waterd33.ico" type="image/x-icon">
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <main></main>
+    <script src="sketch.js"></script>
+    <button id="reset" onclick="gameInit()">Reset</button>
+
+    <br /><br />
+    <strong>Difficulty Parameters:</strong>
+    <br />
+    <span>Bottle Capacity:</span>
+    <input id="bottleIn" type="number" min="1" max="100" placeholder="30" />
+    <br />
+    <span>Dehydration Time:</span>
+    <input id="speedIn" type="number" min="1" max="999" placeholder="90" />
+  </body>
+</html>

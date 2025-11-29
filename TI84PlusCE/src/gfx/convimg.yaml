@@ -1,0 +1,18 @@
+palettes:
+  - name: mypalette
+    images: automatic
+
+converts:
+  - name: myimages
+    palette: mypalette
+    images:
+      - waterd2.png
+      - waterd33.png
+
+outputs:
+  - type: c
+    include-file: gfx.h
+    palettes:
+      - mypalette
+    converts:
+      - myimages

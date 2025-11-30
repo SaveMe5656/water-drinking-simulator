@@ -160,7 +160,7 @@ function gameClicked() {
 }
 
 // function that runs on game reset
-function gameInit(mEtHoD) {
+function gameInit(method) {
 	// init highscore
 	water.highscore = +loadCookie("wds-highscore");
 	water.highscore || (water.highscore = 0);
@@ -184,7 +184,7 @@ function gameInit(mEtHoD) {
 	else water.speed = 1 / 90;
 
 	// execute on setup if autosave enabled
-	if (mEtHoD == "setup" && loadCookie("wds-autosave") != "disabled") {
+	if (method == "setup" && loadCookie("wds-autosave") != "disabled") {
 		// toggle checkbox on HTML page
 		document.getElementById("autosave").checked = true;
 

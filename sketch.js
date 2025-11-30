@@ -160,7 +160,7 @@ function gameClicked() {
 }
 
 // function that runs on game reset
-function gameInit() {
+function gameInit(method) {
 	// init highscore
 	water.highscore = +loadCookie("wds-highscore");
 	water.highscore || (water.highscore = 0);

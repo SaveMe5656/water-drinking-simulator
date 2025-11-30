@@ -191,6 +191,11 @@ function gameInit(method) {
 		// load water level and score from cookies
 		water.level = +loadCookie("wds-hydration");
 		water.scoreOffset = -+loadCookie("wds-score");
+		// init default values if failed
+		if (isNaN(water.level)) {
+			water.level = 50;
+			water.scoreOffset = frameCount / 60;
+		}
 	}
 	// execute otherwise
 	else {

@@ -62,4 +62,4 @@ current version: 2.1
 
 ### ver. 3.1
   * fix loading from cookies
-    - the game was loading from cookies even when empty; resulted in values being NaN and crashing the game
+    - the game was loading from cookies even when empty; resulted in values being `NaN` and crashing the game

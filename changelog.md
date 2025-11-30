@@ -59,3 +59,7 @@ current version: 2.1
   * implement autosave via browser cookies
   * add options section on HTML page above difficulty parameters
   * add autosave toggling
+
+### ver. 3.1
+  * fix loading from cookies
+    - the game was loading from cookies even when empty; resulted in values being NaN and crashing the game

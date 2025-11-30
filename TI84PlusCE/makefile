@@ -2,7 +2,7 @@
 # Makefile Options
 # ----------------------------
 
-NAME = WTD
+NAME = WDS
 ICON = icon.png
 DESCRIPTION = "water drinking simulator"
 COMPRESSED = NO

@@ -1,136 +1,215 @@
 // object to store water-related parameters
-let water = {};
+let water = {
+	cooldown: 2,
+};
+
+// variable to link BGM to
+let bgm;
 
 // variable to store hydration percentage
 let hydration;
 
 // setup
 async function setup() {
-  // init water drinking sound
-  water.sound = createAudio("assets/bloxy-cola.mp3");
+	// init water drinking sound
+	water.sound = createAudio("assets/bloxy-cola.mp3");
 
-  // init water drinking guy images
-  water.image = {
-    idle: await loadImage("assets/waterd2.png"),
-    drink: await loadImage("assets/waterd33.png"),
-  };
+	// init BGM
+	bgm = await createAudio("assets/Sneaky%20Snitch.mp3");
 
-  // create the game canvas
-  game = createCanvas(320, 302);
+	// init water drinking guy images
+	water.image = {
+		idle: await loadImage("assets/waterd2.png"),
+		drink: await loadImage("assets/waterd33.png"),
+	};
 
-  // restrict canvas action to the canvas
-  game.mouseClicked(gameClicked);
+	// create the game canvas
+	game = createCanvas(320, 302);
 
-  // initialize game
-  gameInit();
+	// restrict canvas action to the canvas
+	game.mouseClicked(gameClicked);
+
+	// initialize game
+	gameInit("setup");
 }
-
-//console.log(document.getElementById('ID').innerHTML);
 
 // draw loop
 function draw() {
-  hydration = round(water.level);
-  // execute if sufficiently and properly hydrated
-  if (hydration >= 0 && hydration <= 100) {
-    // display the cursor as hand if over the canvas
-    cursor(HAND);
+	hydration = round(water.level);
+	// execute if sufficiently and properly hydrated
+	if (hydration >= 0 && hydration <= 100) {
+		// display the cursor as hand if over the canvas
+		cursor(HAND);
 
-    // check water drinking status...
-    if (
-      water.sound.time() > 0 &&
-      water.sound.time() < water.sound.duration() / 2
-    )
-      image(water.image.drink, 0, 0);
-    else image(water.image.idle, 0, 0);
+		// check water drinking status...
+		if (
+			water.sound.time() > 0 &&
+			water.sound.time() < water.sound.duration() / 2
+		)
+			image(water.image.drink, 0, 0);
+		else image(water.image.idle, 0, 0);
 
-    // store current score
-    water.score = round(frameCount / 60 - water.scoreOffset, 1);
+		// store current score
+		water.score = round(frameCount / 60 - water.scoreOffset, 1);
 
-    // display score
-    fill(0);
-    textAlign(LEFT);
-    text("Score: " + water.score, 5, 5 + textSize());
+		// display score
+		fill(0);
+		textAlign(LEFT);
+		text(
+			"Score: " + water.score + "\nHighscore: " + water.highscore,
+			5,
+			5 + textSize()
+		);
 
-    // display hydration status
-    // hydration in %
-    textAlign(CENTER);
-    text("Hydration: " + hydration + "%", 55, height - 12);
-    // hydration as progressbar
-    fill(128);
-    stroke(0);
-    rect(5, height - 10, 100, 5);
-    if (water.level > 15) fill("#0AE");
-    else fill("#E43");
-    noStroke();
-    rect(5, height - 10, water.level, 5);
+		// display hydration status
+		// hydration in %
+		textAlign(CENTER);
+		text("Hydration: " + hydration + "%", 55, height - 12);
+		// hydration as progressbar
+		fill(128);
+		stroke(0);
+		rect(4.5, height - 10.5, 101, 6, 3);
+		if (water.level > 15) fill("#0AE");
+		else fill("#E43");
+		noStroke();
+		rect(5, height - 10, water.level, 5, 2.5);
 
-    // decrement hydration level
-    water.level -= water.speed;
-  }
-  // execute if unsufficiently or improperly hydrated
-  else {
-    fill(255);
-    textAlign(CENTER);
+		// execute every minute
+		if (Number.isInteger((frameCount + 1) / getTargetFrameRate() / 60)) {
+			// execute if autosave enabled
+			if (document.getElementById("autosave").checked) {
+				// autosave
+				saveCookie("wds-hydration", water.level);
+				saveCookie("wds-score", water.score);
 
-    // execute if player had not sufficiently hydrated
-    if (hydration < 0) {
-      background("#d12");
-      text("You perished of\n  dehydration...", width / 2, (height * 3) / 7);
-    }
-    // otherwise execute if player had overhydrated and drowned
-    else if (hydration > 100) {
-      background("#E26");
-      text("You overhydrated\nand drowned!", width / 2, (height * 3) / 7);
-    }
-    text("\n\n\nGAME OVER\nScore: " + water.score, width / 2, (height * 3) / 7);
-  }
+				// save autosave state to cookies
+				if (loadCookie("wds-autosave")) deleteCookie("wds-autosave");
+			}
+			// execute if autosave disabled
+			else {
+				// save autosave state to cookies
+				if (loadCookie("wds-autosave") != "disabled")
+					saveCookie("wds-autosave", "disabled");
+			}
+		}
+
+		// decrement hydration level
+		water.level -= water.speed;
+	}
+	// execute if unsufficiently or improperly hydrated
+	else {
+		fill(255);
+		textAlign(CENTER);
+
+		// execute if player had not sufficiently hydrated
+		if (hydration < 0) {
+			background("#d12");
+			text("You perished of\n  dehydration...", width / 2, (height * 3) / 7);
+		}
+		// otherwise execute if player had overhydrated and drowned
+		else if (hydration > 100) {
+			background("#E26");
+			text("You overhydrated\nand drowned!", width / 2, (height * 3) / 7);
+		}
+
+		// save score if it's a highscore
+		if (water.score > water.highscore) {
+			saveCookie("wds-highscore", water.score);
+			water.highscore = water.score;
+		}
+
+		// delete any autosave data if exists
+		if (loadCookie("wds-hydration")) deleteCookie("wds-hydration");
+		if (loadCookie("wds-score")) deleteCookie("wds-score");
+
+		// display GAME OVER and score/highscore
+		text(
+			"\n\n\nGAME OVER\nScore: " +
+				water.score +
+				"\nHighscore: " +
+				water.highscore,
+			width / 2,
+			(height * 3) / 7
+		);
+
+		// stop looping and music
+		noLoop();
+		bgm.pause();
+	}
 }
 
 // function that runs on canvas click
 function gameClicked() {
-  // only execute if sufficiently and properly hydrated
-  if (water.level >= 0 && water.level <= 100) {
-    // do the following if water drinking cooldown is up
-    if (
-      water.sound.time() == 0 ||
-      water.sound.time() >= water.sound.duration() / 2
-    ) {
-      // restart sound playback if true
-      water.sound.time(0);
+	// only execute if sufficiently and properly hydrated
+	if (water.level >= 0 && water.level <= 100) {
+		// do the following if water drinking cooldown is up
+		if (
+			water.sound.time() == 0 ||
+			water.sound.time() >= water.sound.duration() / 2
+		) {
+			// restart sound playback if true
+			water.sound.time(0);
 
-      // hydrate
-      water.level += water.bottle;
-    }
+			// hydrate
+			water.level += water.bottle;
+		}
 
-    // attempt to play sound
-    water.sound.play();
-  }
+		// attempt to play sound
+		water.sound.play();
+	}
 }
 
 // function that runs on game reset
 function gameInit() {
-  // store HTML page inputs to temporary variables
-  let bottleInput = document.getElementById("bottleIn").value,
-    speedInput = document.getElementById("speedIn").value;
+	// init highscore
+	water.highscore = +loadCookie("wds-highscore");
+	water.highscore || (water.highscore = 0);
 
-  // check for a value for bottle capacity...
-  if (bottleInput)
-    // ...and store to configuration if exists...
-    water.bottle = bottleInput;
-  // ...otherwise store the default
-  else water.bottle = 30;
+	// store HTML page inputs to temporary variables
+	let bottleInput = document.getElementById("bottleIn").value,
+		speedInput = document.getElementById("speedIn").value;
 
-  // do the same for dehydration speed...
-  if (speedInput)
-    // ...and store to configuration if exists...
-    water.speed = 1 / speedInput;
-  // ...otherwise store its default
-  else water.speed = 1 / 90;
+	// check for a value for bottle capacity...
+	if (bottleInput)
+		// ...and store to configuration if exists...
+		water.bottle = bottleInput;
+	// ...otherwise store the default
+	else water.bottle = 30;
 
-  // reset water level and score
-  water.level = 50;
-  water.scoreOffset = frameCount / 60;
+	// do the same for dehydration speed...
+	if (speedInput)
+		// ...and store to configuration if exists...
+		water.speed = 1 / speedInput;
+	// ...otherwise store its default
+	else water.speed = 1 / 90;
 
-  // reset water drinking sound
-  water.sound.stop();
+	// execute on setup if autosave enabled
+	if (method == "setup" && loadCookie("wds-autosave") != "disabled") {
+		// toggle checkbox on HTML page
+		document.getElementById("autosave").checked = true;
+
+		// load water level and score from cookies
+		water.level = +loadCookie("wds-hydration");
+		water.scoreOffset = -+loadCookie("wds-score");
+	}
+	// execute otherwise
+	else {
+		// reset water level and score
+		water.level = 50;
+		water.scoreOffset = frameCount / 60;
+
+		// delete any autosave data if exists
+		if (loadCookie("wds-hydration")) deleteCookie("wds-hydration");
+		if (loadCookie("wds-score")) deleteCookie("wds-score");
+	}
+
+	// reset water drinking sound
+	water.sound.stop();
+
+	// play BGM
+	bgm.play();
+	bgm.loop();
+
+	// reinit game loop
+	loop();
 }

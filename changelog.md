@@ -43,3 +43,19 @@ current version: 2.1
   
 ### ver. 2.1
   * tweak hydration progressbar warning color level
+
+### ver. 3.0
+  * attempt adding BGM
+  * tweak hydration bar to have rounded ends
+  * fix hydration bar display
+  * update library p5.js
+  * create cookie library
+    - needed to use cookies for saving things in-game and a library seemed like a good choice since I could use it in more places than just here
+  * fix BGM ![:sneakysnitch:](https://cdn.discordapp.com/emojis/1388073015929212929.webp?size=16)
+  * make highscore saving preparations (stop game from looping on game over)
+  * remove random line of stray commented-out code
+  * make music pause on game over
+  * implement highscore saving via browser cookies
+  * implement autosave via browser cookies
+  * add options section on HTML page above difficulty parameters
+  * add autosave toggling

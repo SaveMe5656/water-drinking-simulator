@@ -29,12 +29,12 @@ async function setup() {
 	// restrict canvas action to the canvas
 	game.mouseClicked(gameClicked);
 
-	// initialize game
-	initGame("setup");
-
 	// disable music checkbox if BGM playback disabled
 	if (!+loadCookie("wds-music"))
 		document.getElementById("music").checked = false;
+
+	// initialize game
+	initGame("setup");
 }
 
 // draw loop

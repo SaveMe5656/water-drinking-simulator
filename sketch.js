@@ -31,6 +31,10 @@ async function setup() {
 
 	// initialize game
 	initGame("setup");
+
+	// disable Music checkbox if BGM playback disabled/failed
+	if (!+loadCookie("wds-music") || navigator.getAutoplayPolicy("mediaelement") != "allowed")
+		document.getElementById("bgm").checked = false;
 }
 
 // draw loop
@@ -220,9 +224,6 @@ function initGame(method) {
 
 	// attempt BGM playback
 	testBgmPlayback();
-	// disable BGM checkbox if playback disabled/failed
-	if (!+loadCookie("wds-music") || navigator.getAutoplayPolicy("mediaelement") != "allowed")
-		document.getElementById("bgm").checked = false;
 
 	// reinit game loop
 	loop();

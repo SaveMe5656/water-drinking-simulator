@@ -1,7 +1,7 @@
 \*drinks water\*
 
 # water drinking simulator
-a fairly simple JavaScript game about staying properly hydrated
+a fairly simple game about staying properly hydrated
 
 
 ## gameplay
@@ -20,3 +20,5 @@ I made this game in a little under a day after having inspiration for a while fr
 thank you <ins>@motdab</ins> for character and design, as well as inspiration for everything
 
 shoutout to [p5.js](https://p5js.org) for being an excellent library for a mediocre programmer like me **:p**
+
+thanks [Kevin MacLeod](https://incompetech.com) for Sneaky Snitch ![:sneakysnitch:](https://cdn.discordapp.com/emojis/1388073015929212929.webp?size=16)

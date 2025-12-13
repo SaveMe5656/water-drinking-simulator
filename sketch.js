@@ -159,8 +159,7 @@ function testBgmPlayback() {
 		bgm.loop();
 
 		// save state to cookies
-		if (!bgmState)
-			saveCookie("wds-music", 1);
+		if (!bgmState) saveCookie("wds-music", 1);
 	}
 	// execute if music playback disabled
 	else {
@@ -168,8 +167,7 @@ function testBgmPlayback() {
 		bgm.stop();
 
 		// save state to cookies
-		if (bgmState || isNaN(bgmState))
-			saveCookie("wds-music", 0);
+		if (bgmState || isNaN(bgmState)) saveCookie("wds-music", 0);
 	}
 }
 

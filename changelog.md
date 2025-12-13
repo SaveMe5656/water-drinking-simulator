@@ -72,3 +72,5 @@ current version: 2.1
   * move music interaction to a checkbox in the "Options" category
   * make autosave checkbox save its own state on change
     - used to only do so upon autosave call so this is more normal
+  * add music playback state saving
+    - aaaaaugh why was this was such a pain

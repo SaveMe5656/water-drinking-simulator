@@ -154,7 +154,7 @@ function testBgmPlayback() {
 		bgm.loop();
 
 		// save state to cookies
-		if (!loadCookie("wds-music"))
+		if (!+loadCookie("wds-music"))
 			saveCookie("wds-music", 1);
 	}
 	// execute if music playback disabled
@@ -164,7 +164,7 @@ function testBgmPlayback() {
 
 		// save state to cookies
 		if (loadCookie("wds-music"))
-			deleteCookie("wds-music");
+			saveCookie("wds-music", 0);
 	}
 }
 
@@ -219,6 +219,9 @@ function initGame(method) {
 
 	// attempt BGM playback
 	testBgmPlayback();
+	// disable BGM checkbox if playback disabled
+	if (!+loadCookie("wds-music") || navigator.getAutoplayPolicy("mediaelement") != "allowed")
+		document.getElementById("bgm").checked = false;
 
 	// reinit game loop
 	loop();

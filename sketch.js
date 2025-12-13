@@ -149,16 +149,7 @@ function saveGame(method) {
 // function for BGM playback
 function testBgmPlayback() {
 	// execute if music playback enabled
-	if (water.bgmPlayback && document.getElementById("bgm").checked) {
-		// play BGM
-		bgm.loop();
-
-		// save state to cookies
-		if (!loadCookie("wds-music"))
-			saveCookie("wds-music", 1);
-	}
-	// execute if music playback disabled
-	else {
+	if (loadCookie("wds-music") && document.getElementById("bgm").checked) {
 		// stop BGM
 		bgm.stop();
 
@@ -168,6 +159,15 @@ function testBgmPlayback() {
 		// save state to cookies
 		if (loadCookie("wds-music"))
 			deleteCookie("wds-music");
+	}
+	// execute if music playback disabled
+	else {
+		// play BGM
+		bgm.loop();
+
+		// save state to cookies
+		if (!loadCookie("wds-music"))
+			saveCookie("wds-music", 1);
 	}
 }
 
@@ -220,8 +220,6 @@ function initGame(method) {
 	// reset water drinking sound
 	water.sound.stop();
 
-	// attempt loading BGM state from cookies
-	water.bgmPlayback = +loadCookie("wds-music");
 	// attempt BGM playback
 	testBgmPlayback();
 

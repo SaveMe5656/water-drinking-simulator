@@ -42,10 +42,7 @@ function draw() {
 		cursor(HAND);
 
 		// check water drinking status...
-		if (
-			water.sound.time() > 0 &&
-			water.sound.time() < water.sound.duration() / 2
-		)
+		if (water.sound.time() > 0 && water.sound.time() < water.sound.duration() / 2)
 			image(water.image.drink, 0, 0);
 		else image(water.image.idle, 0, 0);
 
@@ -55,11 +52,7 @@ function draw() {
 		// display score
 		fill(0);
 		textAlign(LEFT);
-		text(
-			"Score: " + water.score + "\nHighscore: " + water.highscore,
-			5,
-			5 + textSize()
-		);
+		text("Score: " + water.score + "\nHighscore: " + water.highscore, 5, 5 + textSize());
 
 		// display hydration status
 		// hydration in %
@@ -108,14 +101,7 @@ function draw() {
 		if (loadCookie("wds-score")) deleteCookie("wds-score");
 
 		// display GAME OVER and score/highscore
-		text(
-			"\n\n\nGAME OVER\nScore: " +
-			water.score +
-			"\nHighscore: " +
-			water.highscore,
-			width / 2,
-			(height * 3) / 7
-		);
+		text("\n\n\nGAME OVER\nScore: " + water.score + "\nHighscore: " + water.highscore, width / 2, (height * 3) / 7);
 
 		// stop looping and music
 		noLoop();
@@ -128,10 +114,7 @@ function gameClicked() {
 	// only execute if sufficiently and properly hydrated
 	if (water.level >= 0 && water.level <= 100) {
 		// do the following if water drinking cooldown is up
-		if (
-			water.sound.time() == 0 ||
-			water.sound.time() >= water.sound.duration() / 2
-		) {
+		if (water.sound.time() == 0 || water.sound.time() >= water.sound.duration() / 2) {
 			// restart sound playback if true
 			water.sound.time(0);
 

@@ -32,8 +32,8 @@ async function setup() {
 	// initialize game
 	initGame("setup");
 
-	// disable Music checkbox if BGM playback disabled/failed
-	if (!+loadCookie("wds-music") || navigator.getAutoplayPolicy("mediaelement") != "allowed")
+	// disable Music checkbox if BGM playback disabled
+	if (!+loadCookie("wds-music"))
 		document.getElementById("bgm").checked = false;
 }
 

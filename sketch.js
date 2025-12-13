@@ -148,13 +148,14 @@ function saveGame(method) {
 
 // function for BGM playback
 function testBgmPlayback() {
+	let bgmState = +loadCookie("wds-music");
 	// execute if music playback enabled
 	if (document.getElementById("bgm").checked) {
 		// play BGM
 		bgm.loop();
 
 		// save state to cookies
-		if (!+loadCookie("wds-music"))
+		if (!bgmState)
 			saveCookie("wds-music", 1);
 	}
 	// execute if music playback disabled
@@ -163,7 +164,7 @@ function testBgmPlayback() {
 		bgm.stop();
 
 		// save state to cookies
-		if (loadCookie("wds-music"))
+		if (bgmState || isNaN(bgmState))
 			saveCookie("wds-music", 0);
 	}
 }

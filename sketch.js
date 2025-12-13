@@ -32,7 +32,7 @@ async function setup() {
 	// initialize game
 	initGame("setup");
 
-	// disable Music checkbox if BGM playback disabled
+	// disable music checkbox if BGM playback disabled
 	if (!+loadCookie("wds-music"))
 		document.getElementById("bgm").checked = false;
 }
@@ -196,7 +196,7 @@ function initGame(method) {
 
 	// execute on setup if game saving enabled
 	if (method == "setup" && !loadCookie("wds-autosave")) {
-		// toggle checkbox on HTML page
+		// enable autosave checkbox on HTML page
 		document.getElementById("autosave").checked = true;
 
 		// attempt loading water level and score from cookies

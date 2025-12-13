@@ -34,7 +34,7 @@ async function setup() {
 
 	// disable music checkbox if BGM playback disabled
 	if (!+loadCookie("wds-music"))
-		document.getElementById("bgm").checked = false;
+		document.getElementById("music").checked = false;
 }
 
 // draw loop
@@ -154,7 +154,7 @@ function saveGame(method) {
 function testBgmPlayback() {
 	let bgmState = +loadCookie("wds-music");
 	// execute if music playback enabled
-	if (document.getElementById("bgm").checked) {
+	if (document.getElementById("music").checked) {
 		// play BGM
 		bgm.loop();
 

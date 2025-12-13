@@ -149,25 +149,22 @@ function saveGame(method) {
 // function for BGM playback
 function testBgmPlayback() {
 	// execute if music playback enabled
-	if (loadCookie("wds-music") && document.getElementById("bgm").checked) {
-		// stop BGM
-		bgm.stop();
-
-		// ensure checkbox is disabled
-		document.getElementById("bgm").checked = false;
-
-		// save state to cookies
-		if (loadCookie("wds-music"))
-			deleteCookie("wds-music");
-	}
-	// execute if music playback disabled
-	else {
+	if (document.getElementById("bgm").checked) {
 		// play BGM
 		bgm.loop();
 
 		// save state to cookies
 		if (!loadCookie("wds-music"))
 			saveCookie("wds-music", 1);
+	}
+	// execute if music playback disabled
+	else {
+		// stop BGM
+		bgm.stop();
+
+		// save state to cookies
+		if (loadCookie("wds-music"))
+			deleteCookie("wds-music");
 	}
 }
 

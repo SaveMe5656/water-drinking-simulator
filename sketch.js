@@ -34,7 +34,7 @@ async function setup() {
 
 	// disable music checkbox if BGM playback disabled
 	if (!+loadCookie("wds-music"))
-		document.getElementById("bgm").checked = false;
+		document.getElementById("music").checked = false;
 }
 
 // draw loop

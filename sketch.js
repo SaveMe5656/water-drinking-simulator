@@ -195,7 +195,7 @@ function initGame(method) {
 	else water.speed = 1 / 90;
 
 	// execute on setup if game saving enabled
-	if (method == "setup" && loadCookie("wds-hydration")) {
+	if (method == "setup" && !loadCookie("wds-autosave")) {
 		// toggle checkbox on HTML page
 		document.getElementById("autosave").checked = true;
 

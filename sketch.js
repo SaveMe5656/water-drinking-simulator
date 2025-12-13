@@ -1,6 +1,6 @@
 // object to store water-related parameters
 let water = {
-	cooldown: 2,
+	cooldown: 2
 };
 
 // variable to link BGM to
@@ -30,7 +30,7 @@ async function setup() {
 	game.mouseClicked(gameClicked);
 
 	// initialize game
-	gameInit("setup");
+	initGame("setup");
 }
 
 // draw loop
@@ -74,24 +74,9 @@ function draw() {
 		noStroke();
 		rect(5, height - 10, water.level, 5, 2.5);
 
-		// execute every minute
-		if (Number.isInteger((frameCount + 1) / getTargetFrameRate() / 60)) {
-			// execute if autosave enabled
-			if (document.getElementById("autosave").checked) {
-				// autosave
-				saveCookie("wds-hydration", water.level);
-				saveCookie("wds-score", water.score);
-
-				// save autosave state to cookies
-				if (loadCookie("wds-autosave")) deleteCookie("wds-autosave");
-			}
-			// execute if autosave disabled
-			else {
-				// save autosave state to cookies
-				if (loadCookie("wds-autosave") != "disabled")
-					saveCookie("wds-autosave", "disabled");
-			}
-		}
+		// attempt autosave every minute
+		if (Number.isInteger((frameCount + 1) / getTargetFrameRate() / 60))
+			saveGame("autosave");
 
 		// decrement hydration level
 		water.level -= water.speed;
@@ -118,16 +103,16 @@ function draw() {
 			water.highscore = water.score;
 		}
 
-		// delete any autosave data if exists
+		// delete any save data if exists
 		if (loadCookie("wds-hydration")) deleteCookie("wds-hydration");
 		if (loadCookie("wds-score")) deleteCookie("wds-score");
 
 		// display GAME OVER and score/highscore
 		text(
 			"\n\n\nGAME OVER\nScore: " +
-				water.score +
-				"\nHighscore: " +
-				water.highscore,
+			water.score +
+			"\nHighscore: " +
+			water.highscore,
 			width / 2,
 			(height * 3) / 7
 		);
@@ -159,8 +144,52 @@ function gameClicked() {
 	}
 }
 
+// game save function
+function saveGame(method) {
+	// execute if game saving enabled
+	if (method != "autosave" || document.getElementById("autosave").checked) {
+		// save state to cookies
+		if (loadCookie("wds-autosave")) deleteCookie("wds-autosave");
+
+		// perform save
+		saveCookie("wds-hydration", water.level);
+		saveCookie("wds-score", water.score);
+	}
+	// execute if game saving disabled
+	else {
+		// save state to cookies
+		if (loadCookie("wds-autosave") != "disabled")
+			saveCookie("wds-autosave", "disabled");
+	}
+}
+
+// function for BGM playback
+function testBgmPlayback() {
+	// execute if music playback enabled
+	if (water.bgmPlayback && document.getElementById("bgm").checked) {
+		// play BGM
+		bgm.loop();
+
+		// save state to cookies
+		if (!loadCookie("wds-music"))
+			saveCookie("wds-music", 1);
+	}
+	// execute if music playback disabled
+	else {
+		// stop BGM
+		bgm.stop();
+
+		// ensure checkbox is disabled
+		document.getElementById("bgm").checked = false;
+
+		// save state to cookies
+		if (loadCookie("wds-music"))
+			deleteCookie("wds-music");
+	}
+}
+
 // function that runs on game reset
-function gameInit(method) {
+function initGame(method) {
 	// init highscore
 	water.highscore = +loadCookie("wds-highscore");
 	water.highscore || (water.highscore = 0);
@@ -176,21 +205,18 @@ function gameInit(method) {
 	// ...otherwise store the default
 	else water.bottle = 30;
 
-	// do the same for dehydration speed...
-	if (speedInput)
-		// ...and store to configuration if exists...
-		water.speed = 1 / speedInput;
-	// ...otherwise store its default
+	// do the same for dehydration speed
+	if (speedInput) water.speed = 1 / speedInput;
 	else water.speed = 1 / 90;
 
-	// execute on setup if autosave enabled
-	if (method == "setup" && loadCookie("wds-autosave") != "disabled") {
+	// execute on setup if game saving enabled
+	if (method == "setup" && loadCookie("wds-hydration")) {
 		// toggle checkbox on HTML page
 		document.getElementById("autosave").checked = true;
 
-		// load water level and score from cookies
+		// attempt loading water level and score from cookies
 		water.level = +loadCookie("wds-hydration");
-		water.scoreOffset = -+loadCookie("wds-score");
+		water.scoreOffset = -loadCookie("wds-score");
 		// init default values if failed
 		if (isNaN(water.level)) {
 			water.level = 50;
@@ -203,7 +229,7 @@ function gameInit(method) {
 		water.level = 50;
 		water.scoreOffset = frameCount / 60;
 
-		// delete any autosave data if exists
+		// delete any save data if exists
 		if (loadCookie("wds-hydration")) deleteCookie("wds-hydration");
 		if (loadCookie("wds-score")) deleteCookie("wds-score");
 	}
@@ -211,9 +237,10 @@ function gameInit(method) {
 	// reset water drinking sound
 	water.sound.stop();
 
-	// play BGM
-	bgm.play();
-	bgm.loop();
+	// attempt loading BGM state from cookies
+	water.bgmPlayback = +loadCookie("wds-music");
+	// attempt BGM playback
+	testBgmPlayback();
 
 	// reinit game loop
 	loop();

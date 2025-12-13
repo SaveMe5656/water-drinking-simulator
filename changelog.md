@@ -63,3 +63,10 @@ current version: 2.1
 ### ver. 3.1
   * fix loading from cookies
     - the game was loading from cookies even when empty; resulted in values being `NaN` and crashing the game
+
+### ver. 3.2
+  * make game saving independent of autosave
+  * change some internal names
+  * add manual save button
+  * add music toggling
+  * move music interaction to a checkbox in the "Options" category

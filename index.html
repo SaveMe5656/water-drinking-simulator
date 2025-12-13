@@ -20,16 +20,20 @@
 <body>
 	<main></main>
 	<script src="sketch.js"></script>
-	<button id="reset" onclick="gameInit()">Reset</button>
-	<button onclick="if (hydration >= 0 && hydration <= 100) bgm.loop()">&#9836;</button>
+	<button id="save" onclick="saveGame()">Save</button>
+	<button id="reset" onclick="initGame()">Reset</button>
 
 	<br><br>
+
 	<div id="config">
 		<div id="options">
 			<strong>Options:</strong>
 			<br>
 			<label for="autosave">Autosave:</label>
 			<input id="autosave" type="checkbox">
+			<br>
+			<label for="bgm">Music:</label>
+			<input id="bgm" type="checkbox" onchange="testBgmPlayback()" checked>
 		</div>
 		<br>
 		<div id="difficulty">

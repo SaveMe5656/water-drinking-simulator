@@ -70,3 +70,5 @@ current version: 2.1
   * add manual save button
   * add music toggling
   * move music interaction to a checkbox in the "Options" category
+  * make autosave checkbox save its own state on change
+    - used to only do so upon autosave call so this is more normal

@@ -1,5 +1,7 @@
 #include <stdlib.h>
-//#include <gfx/gfx.h>
+
+#include <graphx.h>
+#include <gfx/gfx.h>
 
 int main()
 {

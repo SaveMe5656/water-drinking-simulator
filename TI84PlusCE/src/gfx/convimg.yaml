@@ -1,10 +1,6 @@
-palettes:
-  - name: mypalette
-    images: automatic
-
 converts:
-  - name: myimages
-    palette: mypalette
+  - name: wds-assets
+    palette: xlibc
     images:
       - waterd2.png
       - waterd33.png
@@ -12,7 +8,5 @@ converts:
 outputs:
   - type: c
     include-file: gfx.h
-    palettes:
-      - mypalette
     converts:
-      - myimages
+      - wds-assets

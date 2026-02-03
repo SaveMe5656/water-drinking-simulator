@@ -16,6 +16,10 @@ keep hydrated by clicking the canvas to drink water. the longer you stay hydrate
 I made this game in a little under a day after having inspiration for a while from the name of a channel on a friend's Discord server. had a rough idea of this in my head, then decided to get a character drawn and work off of said inspiration
 
 
+## variations/ports
+- [wdsCE](https://github.com/SaveMe5656/water-drinking-simulator/tree/wdsCE): official port to the TI-84 Plus CE line of calculators
+
+
 ## credits
 thank you <ins>@motdab</ins> for character and design, as well as inspiration for everything
 

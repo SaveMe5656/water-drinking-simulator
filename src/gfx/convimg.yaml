@@ -1,0 +1,12 @@
+converts:
+  - name: wds-assets
+    palette: xlibc
+    images:
+      - waterd2.png
+      - waterd33.png
+
+outputs:
+  - type: c
+    include-file: gfx.h
+    converts:
+      - wds-assets

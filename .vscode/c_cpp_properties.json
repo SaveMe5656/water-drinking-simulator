@@ -4,7 +4,7 @@
             "name": "Linux",
             "includePath": [
                 "/home/saveme5656/CEdev/include",
-                "${workspaceFolder}/**"
+                "${workspaceFolder}"
             ],
             "defines": [],
             "compilerPath": "/home/saveme5656/CEdev/bin/ez80-clang",

@@ -74,3 +74,14 @@ current version: 2.1
     - used to only do so upon autosave call so this is more normal
   * add music playback state saving
     - aaaaaugh why was this was such a pain
+
+### ver. 4.0
+  * visually improve game settings container
+  * add "about" and "changelog" links
+  * add warning about cookies
+    - I don't know for certain if I should be too concerned about letting the user know about cookie usage but it seems like the right thing to do ![:nomthink:](https://cdn.discordapp.com/emojis/1454270953575157771.webp?size=16)
+  * add help text
+  * change formatting
+  * fix **game over** screen alignment
+  * unhook cooldown from sfx (finally! :face_holding_back_tears:)
+  * add input for cooldown modifier

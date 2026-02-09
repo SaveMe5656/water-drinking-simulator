@@ -12,6 +12,14 @@
 		canvas {
 			display: block;
 		}
+
+		#config {
+			border: 1px solid black;
+			border-radius: 5px;
+			padding: 4px;
+			background-color: #8884;
+			display: inline-block;
+		}
 	</style>
 	<title>water drinking simulator</title>
 	<meta charset="UTF-8">
@@ -20,32 +28,47 @@
 <body>
 	<main></main>
 	<script src="sketch.js"></script>
-	<button id="save" onclick="saveGame()">Save</button>
-	<button id="reset" onclick="initGame()">Reset</button>
+	<button id="save" onclick="saveGame()"><b>&#x1F5AB;</b> save</button>
+	<button id="reset" onclick="initGame()"><b>&#x27F3;</b> reset</button>
 
 	<br><br>
 
 	<div id="config">
 		<div id="options">
-			<strong>Options:</strong>
+			<strong>options:</strong>
 			<br>
-			<label for="autosave">Autosave:</label>
+			<label for="autosave">autosave:</label>
 			<input id="autosave" type="checkbox" onchange="saveGame('autosave')">
 			<br>
-			<label for="music">Music:</label>
+			<label for="music">music:</label>
 			<input id="music" type="checkbox" onchange="testBgmPlayback()" checked>
 		</div>
 		<br>
 		<div id="difficulty">
-			<strong>Difficulty Parameters:</strong>
+			<strong>gameplay modifiers:</strong>
+			<button id="resetParam"
+				onclick="for (x of document.getElementById('difficulty').getElementsByTagName('input')) x.value = undefined "><b>&#x27F3;</b></button>
 			<br>
-			<span>Bottle Capacity:</span>
+			<span>bottle capacity:</span>
 			<input id="bottleIn" type="number" min="1" max="100" placeholder="30">
 			<br>
-			<span>Dehydration Time:</span>
+			<span>dehydration time:</span>
 			<input id="speedIn" type="number" min="1" max="999" placeholder="90">
+			<br>
+			<span>cooldown:</span>
+			<input id="cooldownIn" type="number" min="1" max="60" step="0.01" placeholder="2.28">
+			<br>
+			<span class="subinfo">*modifiers require game reset to apply</span>
 		</div>
 	</div>
+
+	<br>
+	<a href="about" class="subinfo">about</a>
+	<a href="changelog" class="subinfo">changelog</a>
+
+	<br><br>
+
+	<span class="subinfo">&#x1F36A; this page uses cookies to save configuration and gameplay data</span>
 
 	<script src="swapicon.js"></script>
 </body>

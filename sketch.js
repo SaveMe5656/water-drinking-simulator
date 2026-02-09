@@ -1,7 +1,5 @@
 // object to store water-related parameters
-let water = {
-	cooldown: 2
-};
+let water = { help: [true, 6] };
 
 // variable to link BGM to
 let bgm;
@@ -45,8 +43,8 @@ function draw() {
 		// display the cursor as hand if over the canvas
 		cursor(HAND);
 
-		// check water drinking status...
-		if (water.sound.time() > 0 && water.sound.time() < water.sound.duration() / 2)
+		// render Gerald dependent on water drinking
+		if (water.cooldown.timer > frameCount)
 			image(water.image.drink, 0, 0);
 		else image(water.image.idle, 0, 0);
 
@@ -55,13 +53,23 @@ function draw() {
 
 		// display score
 		fill(0);
-		textAlign(LEFT);
-		text("Score: " + water.score + "\nHighscore: " + water.highscore, 5, 5 + textSize());
+		textAlign(LEFT, BASELINE);
+		text("score: " + water.score + "\nhighscore: " + water.highscore, 5, 5 + textSize());
+
+		// display help text before first click
+		if (water.help[1]) {
+			fill("#0AE" + round(15 * (water.help[1] / 6)).toString(16));
+			text("\n\n\n\u{1F5B0} click to drink", 5, 5 + textSize());
+			if (!water.help[0]) {
+				water.help[1]--;
+			}
+		}
 
 		// display hydration status
 		// hydration in %
 		textAlign(CENTER);
-		text("Hydration: " + hydration + "%", 55, height - 12);
+		fill(0);
+		text("hydration: " + hydration + "%", 55, height - 12);
 		// hydration as progressbar
 		fill(128);
 		stroke(0);
@@ -81,18 +89,21 @@ function draw() {
 	// execute if unsufficiently or improperly hydrated
 	else {
 		fill(255);
-		textAlign(CENTER);
+		textAlign(CENTER, CENTER);
 
-		// execute if player had not sufficiently hydrated
+		// show game over text
 		if (hydration < 0) {
+			// insufficient hydration message
 			background("#d12");
-			text("You perished of\n  dehydration...", width / 2, (height * 3) / 7);
+			text("you perished of\n  dehydration...\n\n\n\n", width / 2, height / 2);
 		}
-		// otherwise execute if player had overhydrated and drowned
 		else if (hydration > 100) {
+			// overhydration message
 			background("#E26");
-			text("You overhydrated\nand drowned!", width / 2, (height * 3) / 7);
+			text("you overhydrated\nand drowned!\n\n\n\n", width / 2, height / 2);
 		}
+		textStyle(BOLD);
+		text("\n\n\ngame over\n\n", width / 2, height / 2);
 
 		// save score if it's a highscore
 		if (water.score > water.highscore) {
@@ -104,8 +115,9 @@ function draw() {
 		if (loadCookie("wds-hydration")) deleteCookie("wds-hydration");
 		if (loadCookie("wds-score")) deleteCookie("wds-score");
 
-		// display GAME OVER and score/highscore
-		text("\n\n\nGAME OVER\nScore: " + water.score + "\nHighscore: " + water.highscore, width / 2, (height * 3) / 7);
+		// display score and highscore
+		textStyle(NORMAL);
+		text("\n\n\n\nscore: " + water.score + "\nhighscore: " + water.highscore, width / 2, height / 2);
 
 		// stop looping and music
 		noLoop();
@@ -118,9 +130,12 @@ function gameClicked() {
 	// only execute if sufficiently and properly hydrated
 	if (water.level >= 0 && water.level <= 100) {
 		// do the following if water drinking cooldown is up
-		if (water.sound.time() == 0 || water.sound.time() >= water.sound.duration() / 2) {
+		if (water.cooldown.timer == 0) {
 			// restart sound playback if true
 			water.sound.time(0);
+
+			// set cooldown
+			water.cooldown.timer = frameCount + water.cooldown.value;
 
 			// hydrate
 			water.level += water.bottle;
@@ -128,6 +143,11 @@ function gameClicked() {
 
 		// attempt to play sound
 		water.sound.play();
+
+		// fade help text on first click
+		if (water.help[0]) {
+			water.help[0] = false;
+		}
 	}
 }
 
@@ -179,7 +199,8 @@ function initGame(method) {
 
 	// store HTML page inputs to temporary variables
 	let bottleInput = document.getElementById("bottleIn").value,
-		speedInput = document.getElementById("speedIn").value;
+		speedInput = document.getElementById("speedIn").value,
+		cooldownInput = document.getElementById("cooldownIn").value;
 
 	// check for a value for bottle capacity...
 	if (bottleInput)
@@ -188,9 +209,13 @@ function initGame(method) {
 	// ...otherwise store the default
 	else water.bottle = 30;
 
-	// do the same for dehydration speed
+	// repeat for dehydration speed
 	if (speedInput) water.speed = 1 / speedInput;
 	else water.speed = 1 / 90;
+
+	// repeat for drinking cooldown
+	if (cooldownInput) water.cooldown = { value: cooldownInput, timer: 0 };
+	else water.cooldown = { value: round(2.28 * getTargetFrameRate()), timer: 0 };
 
 	// execute on setup if game saving enabled
 	if (method == "setup" && !loadCookie("wds-autosave")) {

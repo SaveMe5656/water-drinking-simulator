@@ -1,3 +1,7 @@
+---
+permalink: README.html
+---
+
 \*drinks water\*
 
 # water drinking simulator

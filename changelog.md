@@ -83,5 +83,5 @@ current version: 2.1
   * add help text
   * change formatting
   * fix **game over** screen alignment
-  * unhook cooldown from sfx (finally! :face_holding_back_tears:)
+  * unhook cooldown from sfx (finally! &#x1f979;)
   * add input for cooldown modifier

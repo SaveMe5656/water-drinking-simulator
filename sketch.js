@@ -128,21 +128,18 @@ function draw() {
 // function that runs on canvas click
 function gameClicked() {
 	// only execute if sufficiently and properly hydrated
-	if (water.level >= 0 && water.level <= 100) {
+	if (water.level >= 0 && water.level <= 100 && water.cooldown.timer <= frameCount) {
 		// do the following if water drinking cooldown is up
-		if (water.cooldown.timer == 0) {
-			// restart sound playback if true
-			water.sound.time(0);
 
-			// set cooldown
-			water.cooldown.timer = frameCount + water.cooldown.value;
-
-			// hydrate
-			water.level += water.bottle;
-		}
-
-		// attempt to play sound
+		// play sound if true
+		water.sound.time(0);
 		water.sound.play();
+
+		// set cooldown
+		water.cooldown.timer = frameCount + water.cooldown.value;
+
+		// hydrate
+		water.level += water.bottle;
 
 		// fade help text on first click
 		if (water.help[0]) {

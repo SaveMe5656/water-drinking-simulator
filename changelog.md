@@ -85,3 +85,8 @@ current version: 2.1
   * fix **game over** screen alignment
   * unhook cooldown from sfx (finally! &#x1f979;)
   * add input for cooldown modifier
+
+  ### ver. 4.1
+  * fix cooldown being incorrectly implemented
+    - fancy way of saying "oops I forgot to clean up all the leftovers from the previous version **:p**"
+  * tidy up game interact function

@@ -97,6 +97,9 @@ current version: 2.1
     - the structure of the save data is now stored using encoded JSON instead of individual cookies
     - this means that old save data won't be loaded unless its restored with the option listed above
 
-## ver. 1.4.1
+### ver. 1.4.1
   * fix game failing to load when no save data exists
   * minor code cleanup
+
+### ver. 1.4.2
+  * fix auto save not being enabled by default

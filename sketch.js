@@ -239,7 +239,7 @@ function initGame(method) {
 	else water.cooldown = { value: round(2.28 * getTargetFrameRate()), timer: 0 };
 
 	// execute on setup if game saving enabled
-	if (method == "setup" && data.autosaveEnabled) {
+	if (method == "setup" && (data.autosaveEnabled || data.autosaveEnabled === undefined)) {
 		// enable autosave checkbox on HTML page
 		document.getElementById("autosave").checked = true;
 

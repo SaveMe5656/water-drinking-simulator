@@ -282,19 +282,12 @@ function encodeData(obj) {
 	return btoa(JSON.stringify(obj));
 }
 
-// data decoding function
-function decodeData(b64) {
-	return JSON.parse(atob(b64));
-}
-
 function requestData(name) {
-	// request data
-	let data = decodeData(loadCookie(name));
-	// set up new data if none found
-	if (data === undefined) {
-		data = {};
-		saveCookie(name, encodeData({}));
-	}
+	// request cookie, create data object
+	let cookie = loadCookie(name), data = {};
+	// decode data if cookie valid
+	cookie !== undefined
+		&& (data = JSON.parse(atob(cookie)));
 	// return data object
 	return data;
 }

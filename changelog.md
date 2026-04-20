@@ -8,43 +8,43 @@ current version: 2.1
 
 
 ## Changelog:
-### ver. Alpha
+### Alpha
   * program general structure
   * add reset button
   * add assets
   * implement drinking
     - probably a bad idea to do it based on audio playback time in hindsight but whatever ![:nothoughts:](https://cdn.discordapp.com/emojis/1201246313493311488.webp?size=16)
 
-### ver. Beta
+### Beta
   * add inputs for difficulty parameters
   * implement gameplay
     - hydration starts at 50%
     - Bottle Capacity = % to be added to hydration level
     - Dehydration Time: secs to dehydrate
 
-### ver. 1.0
+### ver. 1.0.0
   * make standard function conditional to proper hydration
   * add dehydration screen
   * add overhydration screen
 
-### ver. 1.1
+### ver. 1.0.1
   * add 1.0 changelog (yes I somehow forgot it **:p**)
   * tweak colors
   
-### ver. 1.2
+### ver. 1.0.2
   * tweak default bottle capacity
   
-### ver. 1.3
+### ver. 1.0.3
   * add variable for round absolute hydration
   * tweak hydration level to be based on round absolute hydration
   
-### ver. 2.0
+### ver. 1.1.0
   * add time-based scoring system
   
-### ver. 2.1
+### ver. 1.1.1
   * tweak hydration progressbar warning color level
 
-### ver. 3.0
+### ver. 1.2.0
   * attempt adding BGM
   * tweak hydration bar to have rounded ends
   * fix hydration bar display
@@ -60,11 +60,11 @@ current version: 2.1
   * add options section on HTML page above difficulty parameters
   * add autosave toggling
 
-### ver. 3.1
+### ver. 1.2.1
   * fix loading from cookies
     - the game was loading from cookies even when empty; resulted in values being `NaN` and crashing the game
 
-### ver. 3.2
+### ver. 1.2.2
   * make game saving independent of autosave
   * change some internal names
   * add manual save button
@@ -75,7 +75,7 @@ current version: 2.1
   * add music playback state saving
     - aaaaaugh why was this was such a pain
 
-### ver. 4.0
+### ver. 1.3.0
   * visually improve game settings container
   * add "about" and "changelog" links
   * add warning about cookies
@@ -83,10 +83,16 @@ current version: 2.1
   * add help text
   * change formatting
   * fix **game over** screen alignment
-  * unhook cooldown from sfx (finally! &#x1f979;)
+  * *finally* unhook cooldown from sfx &#x1f979;
   * add input for cooldown modifier
 
-  ### ver. 4.1
+### ver. 1.3.1
   * fix cooldown being incorrectly implemented
     - fancy way of saying "oops I forgot to clean up all the leftovers from the previous version **:p**"
   * tidy up game interact function
+
+### ver. 1.4.0
+  * implement option to restore old data
+  * rework data saving
+    - the structure of the save data is now stored using encoded JSON instead of individual cookies
+    - this means that old save data won't be loaded unless its restored with the option listed above

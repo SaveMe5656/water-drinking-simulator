@@ -1,5 +1,5 @@
 // object to store water-related parameters
-let water = { help: [true, 6] };
+let water = { help: [true, 6], save: "data" };
 
 // variable to link BGM to
 let bgm;
@@ -9,6 +9,9 @@ let hydration;
 
 // setup
 async function setup() {
+	// request save data
+	let data = requestData("data");
+
 	// init water drinking sound
 	water.sound = createAudio("assets/bloxy-cola.mp3");
 
@@ -28,7 +31,7 @@ async function setup() {
 	game.mouseClicked(gameClicked);
 
 	// disable music checkbox if BGM playback disabled
-	if (!+loadCookie("wds-music"))
+	if (!data.bgmEnabled)
 		document.getElementById("music").checked = false;
 
 	// initialize game
@@ -37,7 +40,9 @@ async function setup() {
 
 // draw loop
 function draw() {
+	// calculate round hydration
 	hydration = round(water.level);
+
 	// execute if sufficiently and properly hydrated
 	if (hydration >= 0 && hydration <= 100) {
 		// display the cursor as hand if over the canvas
@@ -88,6 +93,9 @@ function draw() {
 	}
 	// execute if unsufficiently or improperly hydrated
 	else {
+		// request save data
+		let data = requestData("data");
+
 		fill(255);
 		textAlign(CENTER, CENTER);
 
@@ -105,15 +113,17 @@ function draw() {
 		textStyle(BOLD);
 		text("\n\n\ngame over\n\n", width / 2, height / 2);
 
-		// save score if it's a highscore
-		if (water.score > water.highscore) {
-			saveCookie("wds-highscore", water.score);
-			water.highscore = water.score;
-		}
+		// copy score if it's a highscore
+		if (water.score > water.highscore)
+			data.highscore = water.score,
+				water.highscore = water.score;
 
 		// delete any save data if exists
-		if (loadCookie("wds-hydration")) deleteCookie("wds-hydration");
-		if (loadCookie("wds-score")) deleteCookie("wds-score");
+		if (Object.hasOwn(data, "hydration")) delete data.hydration;
+		if (Object.hasOwn(data, "score")) delete data.score;
+
+		// store the new data object
+		saveCookie(water.save, encodeData(data));
 
 		// display score and highscore
 		textStyle(NORMAL);
@@ -150,49 +160,63 @@ function gameClicked() {
 
 // game save function
 function saveGame(method) {
+	// request save data
+	let data = requestData("data");
+
 	// execute if game saving enabled
 	if (method != "autosave" || document.getElementById("autosave").checked) {
-		// save state to cookies
-		if (loadCookie("wds-autosave")) deleteCookie("wds-autosave");
+		// update autosave state
+		data.autosaveEnabled || (data.autosaveEnabled = true);
 
-		// perform save
-		saveCookie("wds-hydration", water.level);
-		saveCookie("wds-score", water.score);
+		// copy the data properties
+		data.hydration = water.level,
+			data.score = water.score;
 	}
 	// execute if game saving disabled
 	else {
-		// save state to cookies
-		if (loadCookie("wds-autosave") != "disabled")
-			saveCookie("wds-autosave", "disabled");
+		// update autosave state
+		data.autosaveEnabled && (data.autosaveEnabled = false);
 	}
+
+	// store the new data object
+	saveCookie(water.save, encodeData(data));
 }
 
 // function for BGM playback
 function testBgmPlayback() {
-	let bgmState = +loadCookie("wds-music");
+	// request save data
+	let data = requestData("data");
+
 	// execute if music playback enabled
 	if (document.getElementById("music").checked) {
 		// play BGM
 		bgm.loop();
 
-		// save state to cookies
-		if (!bgmState) saveCookie("wds-music", 1);
+		// update bgm state
+		data.bgmEnabled || (data.bgmEnabled = true);
 	}
 	// execute if music playback disabled
 	else {
 		// stop BGM
 		bgm.stop();
 
-		// save state to cookies
-		if (bgmState || isNaN(bgmState)) saveCookie("wds-music", 0);
+		// update bgm state
+		data.bgmEnabled && (data.bgmEnabled = false);
 	}
+
+	// store the new data object
+	saveCookie(water.save, encodeData(data));
 }
 
 // function that runs on game reset
 function initGame(method) {
+	// request save data
+	let data = requestData("data");
+
 	// init highscore
-	water.highscore = +loadCookie("wds-highscore");
-	water.highscore || (water.highscore = 0);
+	data.highscore
+		&& (water.highscore = data.highscore)
+		|| (water.highscore = 0);
 
 	// store HTML page inputs to temporary variables
 	let bottleInput = document.getElementById("bottleIn").value,
@@ -215,18 +239,19 @@ function initGame(method) {
 	else water.cooldown = { value: round(2.28 * getTargetFrameRate()), timer: 0 };
 
 	// execute on setup if game saving enabled
-	if (method == "setup" && !loadCookie("wds-autosave")) {
+	if (method == "setup" && data.autosaveEnabled) {
 		// enable autosave checkbox on HTML page
 		document.getElementById("autosave").checked = true;
 
-		// attempt loading water level and score from cookies
-		water.level = +loadCookie("wds-hydration");
-		water.scoreOffset = -loadCookie("wds-score");
-		// init default values if failed
-		if (isNaN(water.level)) {
-			water.level = 50;
-			water.scoreOffset = frameCount / 60;
-		}
+		// load water level from save data, or init new data
+		water.level !== undefined
+			&& (water.level = data.hydration)
+			|| (water.level = 50);
+
+		// same with score
+		water.scoreOffset !== undefined
+			&& (water.scoreOffset = -data.score)
+			|| (water.scoreOffset = frameCount / 60);
 	}
 	// execute otherwise
 	else {
@@ -239,6 +264,9 @@ function initGame(method) {
 		if (loadCookie("wds-score")) deleteCookie("wds-score");
 	}
 
+	// store the new data object
+	saveCookie(water.save, encodeData(data));
+
 	// reset water drinking sound
 	water.sound.stop();
 
@@ -247,4 +275,65 @@ function initGame(method) {
 
 	// reinit game loop
 	loop();
+}
+
+// data encoding function
+function encodeData(obj) {
+	return btoa(JSON.stringify(obj));
+}
+
+// data decoding function
+function decodeData(b64) {
+	return JSON.parse(atob(b64));
+}
+
+function requestData(name) {
+	// request data
+	let data = decodeData(loadCookie(name));
+	// set up new data if none found
+	if (data === undefined) {
+		data = {};
+		saveCookie(name, encodeData({}));
+	}
+	// return data object
+	return data;
+}
+
+// function for save data migration
+// will most likely be retired in a month paralleling when old save data cookies will expire
+function migrateSave() {
+	// set cookie mappings
+	let cookies = [
+		["wds-score", "score"],
+		["wds-highscore", "highscore"],
+		["wds-hydration", "hydration"],
+		["wds-music", "bgmEnabled"],
+		["wds-autosave", "autosaveEnabled"]
+	],
+		// create an object for new data
+		data = {};
+
+	// move any existing cookies to the data object
+	for (let i in cookies) {
+		let value = loadCookie(cookies[i][0]);
+		if (value !== undefined) {
+			data[cookies[i][1]] = value;
+			deleteCookie(cookies[i][0]);
+		}
+	}
+
+	// update property types
+	data.bgmEnabled == 1 && (data.bgmEnabled = true);
+	data.bgmEnabled == 0 && (data.bgmEnabled = false);
+	data.autosaveEnabled
+		&& (data.autosaveEnabled = true)
+		|| (data.autosaveEnabled = false);
+	for (let i in ["score", "highscore", "hydration"])
+		data[i] && (data[i] = +data[i]);
+
+	// save the new data
+	saveCookie(water.save, encodeData(data));
+
+	// return the data object for debugging purposes
+	return data;
 }

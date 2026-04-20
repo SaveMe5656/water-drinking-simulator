@@ -103,3 +103,6 @@ current version: 2.1
 
 ### ver. 1.4.2
   * fix auto save not being enabled by default
+
+### ver. 1.4.3
+  * auto-reload on save restore

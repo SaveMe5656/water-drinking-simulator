@@ -294,7 +294,7 @@ function requestData(name) {
 
 // function for save data migration
 // will most likely be retired in a month paralleling when old save data cookies will expire
-function migrateSave() {
+function migrateSave(debug) {
 	// set cookie mappings
 	let cookies = [
 		["wds-score", "score"],
@@ -327,6 +327,8 @@ function migrateSave() {
 	// save the new data
 	saveCookie(water.save, encodeData(data));
 
-	// return the data object for debugging purposes
-	return data;
+	// reload the page if not debugging
+	debug
+	&& (return data)
+	|| (reload());
 }

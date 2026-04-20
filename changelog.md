@@ -106,3 +106,7 @@ current version: 2.1
 
 ### ver. 1.4.3
   * auto-reload on save restore
+
+### ver. 1.4.4
+  * fix save restore debugging feature
+  * fix page reload

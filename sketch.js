@@ -327,8 +327,8 @@ function migrateSave(debug) {
 	// save the new data
 	saveCookie(water.save, encodeData(data));
 
+	// return data if debugging
+	if (debug) return data;
 	// reload the page if not debugging
-	debug
-	&& (return data)
-	|| (reload());
+	else window.location.reload();
 }

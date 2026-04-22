@@ -3,8 +3,6 @@ I am sincerely sorry
 water drinking simulator by CommandCreep <ins>[@saveme5656]</ins> <br>
 art by and inspiration thanks to <ins>@motdab</ins>
 
-current version: 2.1
-
 
 
 ## Changelog:

@@ -108,3 +108,7 @@ art by and inspiration thanks to <ins>@motdab</ins>
 ### ver. 1.4.4
   * fix save restore debugging feature
   * fix page reload
+
+### ver. 1.4.5
+  * fix restoring of save data
+    - there was a very stupid mistake in the data loading code; I'm so sorry to anyone who lost their progress ![:jpig:](https://cdn.discordapp.com/emojis/1059247473723449355.webp?size=16)

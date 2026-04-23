@@ -215,8 +215,8 @@ function initGame(method) {
 
 	// init highscore
 	data.highscore
-		&& (water.highscore = data.highscore)
-		|| (water.highscore = 0);
+		? water.highscore = data.highscore
+		: water.highscore = 0;
 
 	// store HTML page inputs to temporary variables
 	let bottleInput = document.getElementById("bottleIn").value,
@@ -244,14 +244,14 @@ function initGame(method) {
 		document.getElementById("autosave").checked = true;
 
 		// load water level from save data, or init new data
-		water.level !== undefined
-			&& (water.level = data.hydration)
-			|| (water.level = 50);
+		data.hydration !== undefined
+			? water.level = data.hydration
+			: water.level = 50;
 
 		// same with score
-		water.scoreOffset !== undefined
-			&& (water.scoreOffset = -data.score)
-			|| (water.scoreOffset = frameCount / 60);
+		data.score !== undefined
+			? water.scoreOffset = -data.score
+			: water.scoreOffset = frameCount / 60;
 	}
 	// execute otherwise
 	else {
@@ -319,8 +319,8 @@ function migrateSave(debug) {
 	data.bgmEnabled == 1 && (data.bgmEnabled = true);
 	data.bgmEnabled == 0 && (data.bgmEnabled = false);
 	data.autosaveEnabled
-		&& (data.autosaveEnabled = true)
-		|| (data.autosaveEnabled = false);
+		? data.autosaveEnabled = true
+		: data.autosaveEnabled = false;
 	for (let i in ["score", "highscore", "hydration"])
 		data[i] && (data[i] = +data[i]);
 

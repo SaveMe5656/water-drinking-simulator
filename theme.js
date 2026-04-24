@@ -26,6 +26,6 @@ function setTheme(style) {
   saveCookie("theme", style);
 }
 
-const style = loadCookie("theme");
+const style = loadCookie("theme") || "default";
 setTheme(style);
 themeSelector.value = style;

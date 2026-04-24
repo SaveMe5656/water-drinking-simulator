@@ -1,6 +1,6 @@
 // object to store water-related parameters
 let water = {
-	version: "v1.5.0 debug",
+	version: "v1.5.1",
 	help: [true, 6],
 	save: "data"
 };

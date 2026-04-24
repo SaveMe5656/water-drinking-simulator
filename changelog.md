@@ -125,3 +125,8 @@ art by and inspiration thanks to <ins>@motdab</ins>
   * add game version on page
   * fix deleting nonexistent cookies from previous versions
   * optimize code
+
+### ver. 1.5.1
+  * fix page theme selector being blank
+  * remove "debug" from version number
+    - unintentional carry-over from the [dev. version](https://editor.p5js.org/CommandCreep/full/qY7HtUx37) (you can check it out if you want **:D**)

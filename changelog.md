@@ -112,3 +112,16 @@ art by and inspiration thanks to <ins>@motdab</ins>
 ### ver. 1.4.5
   * fix restoring of save data
     - there was a very stupid mistake in the data loading code; I'm so sorry to anyone who lost their progress ![:jpig:](https://cdn.discordapp.com/emojis/1059247473723449355.webp?size=16)
+
+### ver. 1.5.0
+  * add page theming
+    - add watery theme
+      + featured in both light and dark modes &#x1f601;
+    - tweak original theme
+    - add theme selector
+      + can be switched between classic, light, or dark themes; or set to default based on client theme
+  * replace symbols with [jdecked Twemoji](https://github.com/jdecked/twemoji) for better compatibility
+  * add logging of new game versions to save data
+  * add game version on page
+  * fix deleting nonexistent cookies from previous versions
+  * optimize code

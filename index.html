@@ -8,19 +8,47 @@
 	<link id="icon" rel="shortcut icon" href="/assets/image.ico">
 	<link rel="stylesheet" href="/style.css">
 
+	<meta name="color-scheme" class="theme" content="light dark" />
+	<style class="theme"></style>
+
 	<style>
+		:root {
+			--border: .33em;
+			--border-style: solid var(--outline, initial);
+		}
+
+		body {
+			background-color: var(--page-bg, initial);
+			color: var(--page-color, initial);
+		}
+
 		canvas {
 			display: block;
 		}
 
+		#gerald {
+			border: 1px var(--border-style);
+			border-radius: 2.5px;
+		}
+
 		#config {
-			border: 1px solid black;
-			border-radius: 5px;
-			padding: 4px;
-			background-color: #8884;
+			border: 2px var(--border-style);
+			border-radius: var(--border);
+			padding: var(--border);
+			background-color: var(--background);
 			display: inline-block;
+			width: 17.5em;
+
+			a:link {
+				color: var(--link, initial);
+			}
+
+			a:visited {
+				color: var(--link-visited, initial);
+			}
 		}
 	</style>
+
 	<title>water drinking simulator</title>
 	<meta charset="UTF-8">
 </head>
@@ -28,8 +56,14 @@
 <body>
 	<main></main>
 	<script src="sketch.js"></script>
-	<button id="save" onclick="saveGame()"><b>&#x1F5AB;</b> save</button>
-	<button id="reset" onclick="initGame()"><b>&#x27F3;</b> reset</button>
+	<button id="save" onclick="saveGame()">
+		<img class="emoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/svg/1f4be.svg" alt="&#x1F5AB;">
+		save
+	</button>
+	<button id="reset" onclick="initGame()">
+		<img class="emoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/svg/1f504.svg" alt="&#x27F3;">
+		reset
+	</button>
 
 	<br><br>
 
@@ -42,12 +76,22 @@
 			<br>
 			<label for="music">music:</label>
 			<input id="music" type="checkbox" onchange="testBgmPlayback()" checked>
+			<br>
+			<label for="theme">theme:</label>
+			<select id="theme" onchange="setTheme()">
+				<option value="default">default</option>
+				<option value="basic">basic</option>
+				<option value="light">light</option>
+				<option value="dark">dark</option>
+			</select>
 		</div>
 		<br>
 		<div id="difficulty">
 			<strong>gameplay modifiers:</strong>
 			<button id="resetParam"
-				onclick="for (x of document.getElementById('difficulty').getElementsByTagName('input')) x.value = undefined "><b>&#x27F3;</b></button>
+				onclick="for (x of document.getElementById('difficulty').getElementsByTagName('input')) x.value = undefined ">
+				<img class="emoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/svg/1f504.svg" alt="&#x27F3;">
+			</button>
 			<br>
 			<span>bottle capacity:</span>
 			<input id="bottleIn" type="number" min="1" max="100" placeholder="30">
@@ -67,13 +111,22 @@
 	</div>
 
 	<br>
-	<a href="about" class="subinfo">about</a>
-	<a href="changelog" class="subinfo">changelog</a>
+	<span class="subinfo">
+		<span id="version">...</span>
+		|
+		<a href="about">about</a>
+		|
+		<a href="changelog">changelog</a>
+	</span>
 
 	<br><br>
 
-	<span class="subinfo">&#x1F36A; this page uses cookies to save configuration and gameplay data</span>
+	<span class="subinfo">
+		<img class="emoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/svg/1f36a.svg" alt="&#x1F36A;">
+		this page uses cookies to save configuration and gameplay data
+	</span>
 
+	<script src="theme.js"></script>
 	<script src="swapicon.js"></script>
 </body>
 

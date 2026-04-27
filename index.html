@@ -5,8 +5,7 @@
 	<script src="https://cdn.jsdelivr.net/npm/p5@latest/lib/p5.js"></script>
 	<script src="/cookies.js"></script>
 
-	<link id="icon" rel="shortcut icon" href="/assets/image.ico">
-	<link rel="stylesheet" href="/style.css">
+	<script src="/assets/load.js"></script>
 
 	<meta name="color-scheme" class="theme" content="light dark" />
 	<style class="theme"></style>
@@ -50,6 +49,7 @@
 	</style>
 
 	<title>water drinking simulator</title>
+	<link id="icon" rel="shortcut icon" href="assets/waterd33.ico">
 	<meta charset="UTF-8">
 </head>
 
@@ -102,32 +102,31 @@
 			<span>cooldown:</span>
 			<input id="cooldownIn" type="number" min="1" max="60" step="0.01" placeholder="2.28">
 			<br>
-			<span class="subinfo">*modifiers require game reset to apply</span>
+			<small>*modifiers require game reset to apply</small>
 		</div>
 		<br>
 		<button onclick="migrateSave()">restore old data</button>
 		<br>
-		<span class="subinfo">see <a href="changelog#ver-140">changelog</a> for details</span>
+		<small>see <a href="changelog#ver-140">changelog</a> for details</small>
 	</div>
 
 	<br>
-	<span class="subinfo">
-		<span id="version">...</span>
+	<span>
+		<small id="version">...</small>
 		|
-		<a href="about">about</a>
+		<a class="small" href="about">about</a>
 		|
-		<a href="changelog">changelog</a>
+		<a class="small" href="changelog">changelog</a>
 	</span>
 
 	<br><br>
 
-	<span class="subinfo">
+	<small>
 		<img class="emoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/svg/1f36a.svg" alt="&#x1F36A;">
 		this page uses cookies to save configuration and gameplay data
-	</span>
+	</small>
 
 	<script src="theme.js"></script>
-	<script src="swapicon.js"></script>
 </body>
 
 </html>

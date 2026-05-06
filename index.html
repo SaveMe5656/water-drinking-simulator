@@ -46,6 +46,11 @@
 				color: var(--link-visited, initial);
 			}
 		}
+
+		#volume input[type="range"] {
+			width: 30%;
+			height: 1em;
+		}
 	</style>
 
 	<title>water drinking simulator</title>
@@ -74,9 +79,22 @@
 			<label for="autosave">autosave:</label>
 			<input id="autosave" type="checkbox" onchange="saveGame('autosave')">
 			<br>
-			<label for="music">music:</label>
-			<input id="music" type="checkbox" onchange="testBgmPlayback()" checked>
+			<label for="bgm">music:</label>
+			<input id="bgm" type="checkbox" onchange="testBgmPlayback()" checked>
 			<br>
+			<label for="volume">volume:</label>
+			<div id="volume">
+				<label for="sound">
+					<img class="emoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/svg/1f50a.svg"
+						alt="&#x1F50A;">
+				</label>
+				<input id="sound" type="range" max="1" step=".1" value="1" onchange="changeVolume()">
+				<label for="music">
+					<img class="emoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/svg/1f3b5.svg"
+						alt="&#x1F3B5;">
+				</label>
+				<input id="music" type="range" max="1" step=".1" value=".5" onchange="changeVolume('music')">
+			</div>
 			<label for="theme">theme:</label>
 			<select id="theme" onchange="setTheme()">
 				<option value="default">default</option>
@@ -105,9 +123,9 @@
 			<small>*modifiers require game reset to apply</small>
 		</div>
 		<br>
-		<button onclick="migrateSave()">restore old data</button>
+		<button onclick="migrateSave()">fix save data</button>
 		<br>
-		<small>see <a href="changelog#ver-140">changelog</a> for details</small>
+		<small>new updates can sometimes break things! check the <a href="changelog#ver-140">changelog</a> to see if a recent change may have broken your save data</small>
 	</div>
 
 	<br>

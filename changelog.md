@@ -90,10 +90,10 @@ art by and inspiration thanks to <ins>@motdab</ins>
   * tidy up game interact function
 
 ### ver. 1.4.0
-  * implement option to restore old data
   * rework data saving
     - the structure of the save data is now stored using encoded JSON instead of individual cookies
     - this means that old save data won't be loaded unless its restored with the option listed above
+  * implement option to restore old data
 
 ### ver. 1.4.1
   * fix game failing to load when no save data exists
@@ -130,3 +130,15 @@ art by and inspiration thanks to <ins>@motdab</ins>
   * fix page theme selector being blank
   * remove "debug" from version number
     - unintentional carry-over from the [dev. version](https://editor.p5js.org/CommandCreep/full/qY7HtUx37) (you can check it out if you want **:D**)
+
+### ver. 1.5.2
+  * halve music volume
+  * change audio handling
+  * add volume control
+    - also persists through sessions!
+  * make font match with main page
+  * optimize code a bit more
+  * move all autosave data to one property
+    - old save data will be broken because of this
+  * update save data restore function (or should I say save data *fixing* function **:)**)
+  * fix disabling autosave not carrying over when uninitialized

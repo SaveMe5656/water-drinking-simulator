@@ -1,23 +1,27 @@
 // object to store water-related parameters
 let water = {
-	version: "v1.5.1",
+	version: "v1.5.2",
 	help: [true, 6],
 	save: "data"
 };
 
-// variable to link BGM to
-let bgm;
-
 // setup
 async function setup() {
 	// request save data
-	let data = requestData("data");
+	let data = requestData(water.save);
 
-	// init water drinking sound
-	water.sound = createAudio("assets/bloxy-cola.mp3");
+	// init audio
+	water.audio = {
+		sound: {
+			drink: createAudio("assets/bloxy-cola.mp3")
+		},
+		music: {
+			bgm: createAudio("assets/Sneaky%20Snitch.mp3")
+		}
+	};
 
-	// init BGM
-	bgm = await createAudio("assets/Sneaky%20Snitch.mp3");
+	// adjust BGM volume
+	water.audio.music.bgm.volume(0.5);
 
 	// init images
 	water.image = {
@@ -34,7 +38,10 @@ async function setup() {
 	game.mouseClicked(gameClicked);
 
 	// disable music checkbox if BGM playback disabled
-	data.bgmEnabled || (document.getElementById("music").checked = false);
+	data.bgmEnabled || (document.getElementById("bgm").checked = false);
+
+	// set font to match page
+	textFont(getComputedStyle(document.documentElement).fontFamily);
 
 	// initialize game
 	initGame("setup");
@@ -105,7 +112,7 @@ function draw() {
 	// execute if unsufficiently or improperly hydrated
 	else {
 		// request save data
-		let data = requestData("data");
+		let data = requestData(water.save);
 
 		fill(255);
 		textAlign(CENTER, CENTER);
@@ -131,8 +138,8 @@ function draw() {
 		);
 
 		// delete any save data if exists
-		Object.hasOwn(data, "hydration") && delete data.hydration;
-		Object.hasOwn(data, "score") && delete data.score;
+		Object.hasOwn(data.autosave, "hydration") && delete data.autosave.hydration;
+		Object.hasOwn(data.autosave, "score") && delete data.autosave.score;
 
 		// store the new data object
 		saveCookie(water.save, encodeData(data));
@@ -143,7 +150,7 @@ function draw() {
 
 		// stop looping and music
 		noLoop();
-		bgm.pause();
+		water.audio.music.bgm.pause();
 	}
 }
 
@@ -154,8 +161,8 @@ function gameClicked() {
 		// do the following if water drinking cooldown is up
 
 		// play sound if true
-		water.sound.time(0);
-		water.sound.play();
+		water.audio.sound.drink.time(0);
+		water.audio.sound.drink.play();
 
 		// set cooldown
 		water.cooldown.timer = frameCount + water.cooldown.value;
@@ -171,21 +178,21 @@ function gameClicked() {
 // game save function
 function saveGame(method) {
 	// request save data
-	let data = requestData("data");
+	let data = requestData(water.save);
 
 	// execute if game saving enabled
 	if (method != "autosave" || document.getElementById("autosave").checked) {
 		// update autosave state
-		data.autosaveEnabled || (data.autosaveEnabled = true);
+		data.autosave.enabled || (data.autosave.enabled = true);
 
 		// copy the data properties
-		data.hydration = water.hydration.real,
-			data.score = water.score;
+		data.autosave.hydration = water.hydration.real,
+			data.autosave.score = water.score;
 	}
 	// execute if game saving disabled
 	else {
 		// update autosave state
-		data.autosaveEnabled && (data.autosaveEnabled = false);
+		data.autosave.enabled == false || (data.autosave.enabled = false);
 	}
 
 	// store the new data object
@@ -195,12 +202,12 @@ function saveGame(method) {
 // function for BGM playback
 function testBgmPlayback() {
 	// request save data
-	let data = requestData("data");
+	let data = requestData(water.save);
 
 	// execute if music playback enabled
-	if (document.getElementById("music").checked) {
+	if (document.getElementById("bgm").checked) {
 		// play BGM
-		bgm.loop();
+		water.audio.music.bgm.loop();
 
 		// update bgm state
 		data.bgmEnabled || (data.bgmEnabled = true);
@@ -208,7 +215,7 @@ function testBgmPlayback() {
 	// execute if music playback disabled
 	else {
 		// stop BGM
-		bgm.stop();
+		water.audio.music.bgm.stop();
 
 		// update bgm state
 		data.bgmEnabled && (data.bgmEnabled = false);
@@ -218,10 +225,39 @@ function testBgmPlayback() {
 	saveCookie(water.save, encodeData(data));
 }
 
+// volume changing function
+function changeVolume(type, volume) {
+	// default to changing sound volume from document input
+	switch (typeof type) {
+		case "string": break;
+		case "number":
+			volume = type;
+		default:
+			type = "sound";
+	}
+	volume || (volume = +document.getElementById(type).value);
+
+	// change volume of each audio element of the specified type
+	for (let i in water.audio[type])
+		water.audio[type][i].volume(volume);
+
+	// request save data
+	let data = requestData(water.save);
+
+	// copy the respective volume value
+	data.volume[type] = volume;
+
+	// store the new data object
+	saveCookie(water.save, encodeData(data));
+
+	// return volume value for debugging purposes
+	return volume;
+}
+
 // function that runs on game reset
 function initGame(method) {
 	// request save data
-	let data = requestData("data");
+	let data = requestData(water.save);
 
 	// execute on setup
 	if (method == "setup") {
@@ -233,6 +269,16 @@ function initGame(method) {
 			? data.version.at(-1).toString() == water.version.toString()
 			|| data.version.push(water.version)
 			: data.version = [water.version];
+
+		// set game volume
+		data.volume = {
+			sound: changeVolume(data.volume.sound),
+			music: changeVolume("music", data.volume.music)
+		};
+
+		// update HTML volume sliders
+		document.getElementById("sound").value = data.volume.sound,
+			document.getElementById("music").value = data.volume.music
 	}
 
 	// init highscore
@@ -256,17 +302,17 @@ function initGame(method) {
 	};
 
 	// execute on setup if game saving enabled
-	if (method == "setup" && (data.autosaveEnabled || data.autosaveEnabled === undefined)) {
+	if (method == "setup" && (data.autosave.enabled || data.autosave.enabled === undefined)) {
 		// enable autosave checkbox on HTML page
 		document.getElementById("autosave").checked = true;
 
 		// init hydration
 		water.hydration = {
-			real: data.hydration || 50
+			real: data.autosave.hydration || 50
 		};
 
 		// init score
-		water.scoreOffset = -data.score || frameCount / 60;
+		water.scoreOffset = -data.autosave.score || frameCount / 60;
 	}
 	// execute otherwise
 	else {
@@ -275,15 +321,15 @@ function initGame(method) {
 		water.scoreOffset = frameCount / 60;
 
 		// delete any save data if exists
-		Object.hasOwn(data, "hydration") && delete data.hydration;
-		Object.hasOwn(data, "score") && delete data.score;
+		Object.hasOwn(data.autosave, "hydration") && delete data.autosave.hydration;
+		Object.hasOwn(data.autosave, "score") && delete data.autosave.score;
 	}
 
 	// store the new data object
 	saveCookie(water.save, encodeData(data));
 
 	// reset water drinking sound
-	water.sound.stop();
+	water.audio.sound.drink.stop();
 
 	// attempt BGM playback
 	testBgmPlayback();
@@ -299,7 +345,7 @@ function encodeData(obj) {
 
 // data requesting function
 function requestData(name) {
-	let cookie = loadCookie(name), data = {};
+	const cookie = loadCookie(name); let data = { volume, autosave };
 	cookie !== undefined && (data = JSON.parse(atob(cookie)));
 	return data;
 }
@@ -307,31 +353,43 @@ function requestData(name) {
 // function for save data migration
 // will most likely be retired in a month paralleling when old save data cookies will expire
 function migrateSave(debug) {
-	// set cookie mappings
-	let cookies = [
+	// set stray cookie mappings
+	const cookies = [
 		["wds-score", "score"],
 		["wds-highscore", "highscore"],
 		["wds-hydration", "hydration"],
 		["wds-music", "bgmEnabled"],
 		["wds-autosave", "autosaveEnabled"]
-	],
-		// create an object for new data
-		data = {};
+	];
 
+	// request save data
+	requestData(water.save);
+
+	// (1.4.0)
 	// move any existing cookies to the data object
 	for (let i in cookies) {
-		let value = loadCookie(cookies[i][0]);
+		const value = loadCookie(cookies[i][0]);
 		if (value !== undefined) {
 			data[cookies[i][1]] = value;
 			deleteCookie(cookies[i][0]);
 		}
 	}
-
 	// update property types
 	data.bgmEnabled = !!+data.bgmEnabled;
 	data.autosaveEnabled = !!+data.autosaveEnabled;
-	for (let i in ["highscore", "score", "hydration"])
+	const autosaveData = ["highscore", "score", "hydration"];
+	for (let i in autosaveData)
 		data[i] && (data[i] = +data[i]);
+
+	// (1.5.2)
+	// move all autosave data to one property
+	data.autosave = { enabled: data.autosaveEnabled };
+	delete data.autosaveEnabled;
+	for (let i in autosaveData)
+		if (data[i]) {
+			data.autosave[i] = data[i];
+			delete data[i];
+		}
 
 	// save the new data
 	saveCookie(water.save, encodeData(data));

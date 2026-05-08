@@ -390,6 +390,8 @@ function migrateSave(debug) {
 			data.autosave[i] = data[i];
 			delete data[i];
 		}
+	// add volume property
+	data.volume || (data.volume = {});
 
 	// save the new data
 	saveCookie(water.save, encodeData(data));

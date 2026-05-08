@@ -8,6 +8,7 @@ art by and inspiration thanks to <ins>@motdab</ins>
 ## changelog:
 ### v1.5.3
   * fix save data repair function not initializing data object properly
+  * add volume parameter initialization in save data repair function
 
 ### v1.5.2
   * halve music volume

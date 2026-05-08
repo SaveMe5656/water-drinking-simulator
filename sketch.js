@@ -1,6 +1,6 @@
 // object to store water-related parameters
 let water = {
-	version: "v1.5.2",
+	version: "v1.5.3",
 	help: [true, 6],
 	save: "data"
 };
@@ -363,7 +363,7 @@ function migrateSave(debug) {
 	];
 
 	// request save data
-	requestData(water.save);
+	let data = requestData(water.save);
 
 	// (1.4.0)
 	// move any existing cookies to the data object

@@ -5,44 +5,96 @@ art by and inspiration thanks to <ins>@motdab</ins>
 
 
 
-## Changelog:
-### Alpha
-  * program general structure
-  * add reset button
-  * add assets
-  * implement drinking
-    - probably a bad idea to do it based on audio playback time in hindsight but whatever ![:nothoughts:](https://cdn.discordapp.com/emojis/1201246313493311488.webp?size=16)
+## changelog:
+### v1.5.3
+  * fix save data repair function not initializing data object properly
 
-### Beta
-  * add inputs for difficulty parameters
-  * implement gameplay
-    - hydration starts at 50%
-    - Bottle Capacity = % to be added to hydration level
-    - Dehydration Time: secs to dehydrate
+### v1.5.2
+  * halve music volume
+  * change audio handling
+  * add volume control
+    - also persists through sessions!
+  * make font match with main page
+  * optimize code a bit more
+  * move all autosave data to one property
+    - old save data will be broken because of this
+  * update save data restore function (or should I say save data *fixing* function **:)**)
+  * fix disabling autosave not carrying over when uninitialized
 
-### ver. 1.0.0
-  * make standard function conditional to proper hydration
-  * add dehydration screen
-  * add overhydration screen
+### v1.5.1
+  * fix page theme selector being blank
+  * remove "debug" from version number
+    - unintentional carry-over from the [dev. version](https://editor.p5js.org/CommandCreep/full/qY7HtUx37) (you can check it out if you want **:D**)
 
-### ver. 1.0.1
-  * add 1.0 changelog (yes I somehow forgot it **:p**)
-  * tweak colors
-  
-### ver. 1.0.2
-  * tweak default bottle capacity
-  
-### ver. 1.0.3
-  * add variable for round absolute hydration
-  * tweak hydration level to be based on round absolute hydration
-  
-### ver. 1.1.0
-  * add time-based scoring system
-  
-### ver. 1.1.1
-  * tweak hydration progressbar warning color level
+### v1.5.0
+  * add page theming
+    - add watery theme
+      + featured in both light and dark modes &#x1f601;
+    - tweak original theme
+    - add theme selector
+      + can be switched between classic, light, or dark themes; or set to default based on client theme
+  * replace symbols with [jdecked Twemoji](https://github.com/jdecked/twemoji) for better compatibility
+  * add logging of new game versions to save data
+  * add game version on page
+  * fix deleting nonexistent cookies from previous versions
+  * optimize code
 
-### ver. 1.2.0
+### v1.4.5
+  * fix restoring of save data
+    - there was a very stupid mistake in the data loading code; I'm so sorry to anyone who lost their progress ![:jpig:](https://cdn.discordapp.com/emojis/1059247473723449355.webp?size=16)
+
+### v1.4.4
+  * fix save restore debugging feature
+  * fix page reload
+
+### v1.4.3
+  * auto-reload on save restore
+
+### v1.4.2
+  * fix auto save not being enabled by default
+
+### v1.4.1
+  * fix game failing to load when no save data exists
+  * minor code cleanup
+
+### v1.4.0
+  * rework data saving
+    - the structure of the save data is now stored using encoded JSON instead of individual cookies
+    - this means that old save data won't be loaded unless its restored with the option listed above
+  * implement option to restore old data
+
+### v1.3.1
+  * fix cooldown being incorrectly implemented
+    - fancy way of saying "oops I forgot to clean up all the leftovers from the previous version **:p**"
+  * tidy up game interact function
+
+### v1.3.0
+  * visually improve game settings container
+  * add "about" and "changelog" links
+  * add warning about cookies
+    - I don't know for certain if I should be too concerned about letting the user know about cookie usage but it seems like the right thing to do ![:nomthink:](https://cdn.discordapp.com/emojis/1454270953575157771.webp?size=16)
+  * add help text
+  * change formatting
+  * fix **game over** screen alignment
+  * *finally* unhook cooldown from sfx &#x1f979;
+  * add input for cooldown modifier
+
+### v1.2.2
+  * make game saving independent of autosave
+  * change some internal names
+  * add manual save button
+  * add music toggling
+  * move music interaction to a checkbox in the "Options" category
+  * make autosave checkbox save its own state on change
+    - used to only do so upon autosave call so this is more normal
+  * add music playback state saving
+    - aaaaaugh why was this was such a pain
+
+### v1.2.1
+  * fix loading from cookies
+    - the game was loading from cookies even when empty; resulted in values being `NaN` and crashing the game
+
+### v1.2.0
   * attempt adding BGM
   * tweak hydration bar to have rounded ends
   * fix hydration bar display
@@ -58,87 +110,38 @@ art by and inspiration thanks to <ins>@motdab</ins>
   * add options section on HTML page above difficulty parameters
   * add autosave toggling
 
-### ver. 1.2.1
-  * fix loading from cookies
-    - the game was loading from cookies even when empty; resulted in values being `NaN` and crashing the game
+### v1.1.1
+  * tweak hydration progressbar warning color level
 
-### ver. 1.2.2
-  * make game saving independent of autosave
-  * change some internal names
-  * add manual save button
-  * add music toggling
-  * move music interaction to a checkbox in the "Options" category
-  * make autosave checkbox save its own state on change
-    - used to only do so upon autosave call so this is more normal
-  * add music playback state saving
-    - aaaaaugh why was this was such a pain
+### v1.1.0
+  * add time-based scoring system
+  
+### v1.0.3
+  * add variable for round absolute hydration
+  * tweak hydration level to be based on round absolute hydration
+  
+### v1.0.2
+  * tweak default bottle capacity
+  
+### v1.0.1
+  * add 1.0 changelog (yes I somehow forgot it **:p**)
+  * tweak colors
+  
+### v1.0.0
+  * make standard function conditional to proper hydration
+  * add dehydration screen
+  * add overhydration screen
 
-### ver. 1.3.0
-  * visually improve game settings container
-  * add "about" and "changelog" links
-  * add warning about cookies
-    - I don't know for certain if I should be too concerned about letting the user know about cookie usage but it seems like the right thing to do ![:nomthink:](https://cdn.discordapp.com/emojis/1454270953575157771.webp?size=16)
-  * add help text
-  * change formatting
-  * fix **game over** screen alignment
-  * *finally* unhook cooldown from sfx &#x1f979;
-  * add input for cooldown modifier
+### v1 beta
+  * add inputs for difficulty parameters
+  * implement gameplay
+    - hydration starts at 50%
+    - Bottle Capacity = % to be added to hydration level
+    - Dehydration Time: secs to dehydrate
 
-### ver. 1.3.1
-  * fix cooldown being incorrectly implemented
-    - fancy way of saying "oops I forgot to clean up all the leftovers from the previous version **:p**"
-  * tidy up game interact function
-
-### ver. 1.4.0
-  * rework data saving
-    - the structure of the save data is now stored using encoded JSON instead of individual cookies
-    - this means that old save data won't be loaded unless its restored with the option listed above
-  * implement option to restore old data
-
-### ver. 1.4.1
-  * fix game failing to load when no save data exists
-  * minor code cleanup
-
-### ver. 1.4.2
-  * fix auto save not being enabled by default
-
-### ver. 1.4.3
-  * auto-reload on save restore
-
-### ver. 1.4.4
-  * fix save restore debugging feature
-  * fix page reload
-
-### ver. 1.4.5
-  * fix restoring of save data
-    - there was a very stupid mistake in the data loading code; I'm so sorry to anyone who lost their progress ![:jpig:](https://cdn.discordapp.com/emojis/1059247473723449355.webp?size=16)
-
-### ver. 1.5.0
-  * add page theming
-    - add watery theme
-      + featured in both light and dark modes &#x1f601;
-    - tweak original theme
-    - add theme selector
-      + can be switched between classic, light, or dark themes; or set to default based on client theme
-  * replace symbols with [jdecked Twemoji](https://github.com/jdecked/twemoji) for better compatibility
-  * add logging of new game versions to save data
-  * add game version on page
-  * fix deleting nonexistent cookies from previous versions
-  * optimize code
-
-### ver. 1.5.1
-  * fix page theme selector being blank
-  * remove "debug" from version number
-    - unintentional carry-over from the [dev. version](https://editor.p5js.org/CommandCreep/full/qY7HtUx37) (you can check it out if you want **:D**)
-
-### ver. 1.5.2
-  * halve music volume
-  * change audio handling
-  * add volume control
-    - also persists through sessions!
-  * make font match with main page
-  * optimize code a bit more
-  * move all autosave data to one property
-    - old save data will be broken because of this
-  * update save data restore function (or should I say save data *fixing* function **:)**)
-  * fix disabling autosave not carrying over when uninitialized
+### v1 alpha
+  * program general structure
+  * add reset button
+  * add assets
+  * implement drinking
+    - probably a bad idea to do it based on audio playback time in hindsight but whatever ![:nothoughts:](https://cdn.discordapp.com/emojis/1201246313493311488.webp?size=16)

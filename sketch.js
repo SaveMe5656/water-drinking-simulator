@@ -1,6 +1,6 @@
 // object to store water-related parameters
 let water = {
-	version: "v1.5.3",
+	version: "v1.6.0",
 	help: [true, 6],
 	save: "data"
 };
@@ -348,6 +348,20 @@ function requestData(name) {
 	const cookie = loadCookie(name); let data = { volume, autosave };
 	cookie !== undefined && (data = JSON.parse(atob(cookie)));
 	return data;
+}
+
+// data import function
+function importData(b64Data, debug) {
+	// default to HTML input
+	b64Data || (b64Data = document.getElementById('data').value);
+
+	// store the new save data
+	saveCookie(water.save, b64Data);
+
+	// return data if debugging
+	if (debug) return b64Data;
+	// reload the page if not debugging
+	else window.location.reload();
 }
 
 // function for save data migration

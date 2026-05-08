@@ -107,7 +107,7 @@
 		<div id="difficulty">
 			<strong>gameplay modifiers:</strong>
 			<button id="resetParam"
-				onclick="for (x of document.getElementById('difficulty').getElementsByTagName('input')) x.value = undefined ">
+				onclick="for(x of document.getElementById('difficulty').getElementsByTagName('input'))x.value=undefined">
 				<img class="emoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/svg/1f504.svg" alt="&#x27F3;">
 			</button>
 			<br>
@@ -123,9 +123,34 @@
 			<small>*modifiers require game reset to apply</small>
 		</div>
 		<br>
-		<button onclick="migrateSave()">fix save data</button>
-		<br>
-		<small>new updates can break things! check the <a href="changelog">changelog</a> if a recent change may have broken your save data</small>
+		<div id="savedata">
+			<strong>save data:</strong>
+			<br>
+			<textarea id="data" style="width:50%;height:3.5em;resize:none"></textarea>
+			<div style="display:inline-block">
+				<button onclick="document.getElementById('data').value=encodeData(requestData(water.save))">
+					<img class="emoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/svg/1f4e4.svg"
+						alt="&#x1F4E4;">
+					export
+				</button>
+				<br>
+				<button onclick="importData()">
+					<img class="emoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/svg/1f4e5.svg"
+						alt="&#x1F4E5;">
+					import
+				</button>
+			</div>
+			<br>
+			<button onclick="migrateSave()">
+				<img class="emoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/svg/1f6e0.svg"
+					alt="&#x1F6E0;">
+				fix save data
+			</button>
+			<span title="new updates can break things! check the changelog if a recent change may have broken your save data"
+				style="opacity:.5;cursor:help" href="changelog">
+				&#x1F6C8;
+			</span>
+		</div>
 	</div>
 
 	<br>

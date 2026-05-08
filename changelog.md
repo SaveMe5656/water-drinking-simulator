@@ -6,6 +6,9 @@ art by and inspiration thanks to <ins>@motdab</ins>
 
 
 ## changelog:
+### v1.6.0
+  * add save data importing and exporting
+
 ### v1.5.3
   * fix save data repair function not initializing data object properly
   * add volume parameter initialization in save data repair function

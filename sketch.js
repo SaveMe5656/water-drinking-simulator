@@ -1,6 +1,6 @@
 // object to store water-related parameters
 let water = {
-	version: "v1.6.0",
+	version: "v1.6.1",
 	help: [true, 6],
 	save: "data"
 };
@@ -138,8 +138,8 @@ function draw() {
 		);
 
 		// delete any save data if exists
-		Object.hasOwn(data.autosave, "hydration") && delete data.autosave.hydration;
-		Object.hasOwn(data.autosave, "score") && delete data.autosave.score;
+		Object.hasOwn(data.save, "hydration") && delete data.save.hydration;
+		Object.hasOwn(data.save, "score") && delete data.save.score;
 
 		// store the new data object
 		saveCookie(water.save, encodeData(data));
@@ -183,16 +183,16 @@ function saveGame(method) {
 	// execute if game saving enabled
 	if (method != "autosave" || document.getElementById("autosave").checked) {
 		// update autosave state
-		data.autosave.enabled || (data.autosave.enabled = true);
+		data.save.autosave || (data.save.autosave = true);
 
 		// copy the data properties
-		data.autosave.hydration = water.hydration.real,
-			data.autosave.score = water.score;
+		data.save.hydration = water.hydration.real,
+			data.save.score = water.score;
 	}
 	// execute if game saving disabled
 	else {
 		// update autosave state
-		data.autosave.enabled == false || (data.autosave.enabled = false);
+		data.save.autosave == false || (data.save.autosave = false);
 	}
 
 	// store the new data object
@@ -264,11 +264,14 @@ function initGame(method) {
 		// display game version on HTML page
 		document.getElementById("version").innerHTML = water.version;
 
-		// save new game versions to cookies
-		Array.isArray(data.version)
-			? data.version.at(-1).toString() == water.version.toString()
-			|| data.version.push(water.version)
-			: data.version = [water.version];
+		// execute if data version doesn't match game version
+		if (!data.version.includes(water.version)) {
+			// attempt to fix save data 
+			data = repairData(1);
+
+			// save new game versions to cookies
+			data.version.push(water.version);
+		}
 
 		// set game volume
 		data.volume = {
@@ -278,7 +281,24 @@ function initGame(method) {
 
 		// update HTML volume sliders
 		document.getElementById("sound").value = data.volume.sound,
-			document.getElementById("music").value = data.volume.music
+			document.getElementById("music").value = data.volume.music;
+
+		// enable autosave checkbox on HTML page if enabled
+		(data.save.autosave || data.save.autosave === undefined) && (document.getElementById("autosave").checked = true);
+
+		// init hydration
+		water.hydration = {
+			real: data.save.hydration || 50
+		};
+
+		// init score
+		water.scoreOffset = -data.save.score || frameCount / 60;
+	}
+	// execute otherwise
+	else {
+		// init hydration and score
+		water.hydration = { real: 50 };
+		water.scoreOffset = frameCount / 60;
 	}
 
 	// init highscore
@@ -301,30 +321,6 @@ function initGame(method) {
 		timer: 0
 	};
 
-	// execute on setup if game saving enabled
-	if (method == "setup" && (data.autosave.enabled || data.autosave.enabled === undefined)) {
-		// enable autosave checkbox on HTML page
-		document.getElementById("autosave").checked = true;
-
-		// init hydration
-		water.hydration = {
-			real: data.autosave.hydration || 50
-		};
-
-		// init score
-		water.scoreOffset = -data.autosave.score || frameCount / 60;
-	}
-	// execute otherwise
-	else {
-		// reset hydration and score
-		water.hydration = { real: 50 };
-		water.scoreOffset = frameCount / 60;
-
-		// delete any save data if exists
-		Object.hasOwn(data.autosave, "hydration") && delete data.autosave.hydration;
-		Object.hasOwn(data.autosave, "score") && delete data.autosave.score;
-	}
-
 	// store the new data object
 	saveCookie(water.save, encodeData(data));
 
@@ -345,73 +341,89 @@ function encodeData(obj) {
 
 // data requesting function
 function requestData(name) {
-	const cookie = loadCookie(name); let data = { volume, autosave };
-	cookie !== undefined && (data = JSON.parse(atob(cookie)));
+	const cookie = loadCookie(name); let data;
+	try { data = JSON.parse(atob(cookie)); }
+	catch (error) {
+		console.warn("Invalid data string. Using new save data...");
+		data = { version: [], save: {}, volume: {} };
+	}
 	return data;
 }
 
 // data import function
-function importData(b64Data, debug) {
+function importData(b64Data, noReload) {
 	// default to HTML input
 	b64Data || (b64Data = document.getElementById('data').value);
+
+	// attempt parsing data to ensure validity
+	try { JSON.parse(atob(b64Data)); }
+	// abort if invalid
+	catch {
+		// log warning
+		console.warn("Attempted to load invalid data. Aborting...");
+
+		return;
+	}
 
 	// store the new save data
 	saveCookie(water.save, b64Data);
 
 	// return data if debugging
-	if (debug) return b64Data;
-	// reload the page if not debugging
+	if (noReload) return b64Data;
+	// reload the page otherwise
 	else window.location.reload();
 }
 
-// function for save data migration
-// will most likely be retired in a month paralleling when old save data cookies will expire
-function migrateSave(debug) {
-	// set stray cookie mappings
-	const cookies = [
-		["wds-score", "score"],
-		["wds-highscore", "highscore"],
-		["wds-hydration", "hydration"],
-		["wds-music", "bgmEnabled"],
-		["wds-autosave", "autosaveEnabled"]
-	];
-
+// data export function
+function exportData(debug) {
 	// request save data
 	let data = requestData(water.save);
 
-	// (1.4.0)
-	// move any existing cookies to the data object
-	for (let i in cookies) {
-		const value = loadCookie(cookies[i][0]);
-		if (value !== undefined) {
-			data[cookies[i][1]] = value;
-			deleteCookie(cookies[i][0]);
-		}
-	}
-	// update property types
-	data.bgmEnabled = !!+data.bgmEnabled;
-	data.autosaveEnabled = !!+data.autosaveEnabled;
-	const autosaveData = ["highscore", "score", "hydration"];
-	for (let i in autosaveData)
-		data[i] && (data[i] = +data[i]);
+	// copy current game properties
+	data.save.hydration = water.hydration.real,
+		data.save.score = water.score;
+
+	// output to HTML if not debugging
+	debug || (document.getElementById('data').value = encodeData(data));
+
+	// return data object
+	return data;
+}
+
+// save data fixing function
+function repairData(noReload) {
+	// request save data
+	let data = requestData(water.save);
 
 	// (1.5.2)
 	// move all autosave data to one property
-	data.autosave = { enabled: data.autosaveEnabled };
-	delete data.autosaveEnabled;
-	for (let i in autosaveData)
+	if (data.autosaveEnabled) {
+		data.autosave = { enabled: data.autosaveEnabled };
+		delete data.autosaveEnabled;
+	}
+	for (let i in ["highscore", "score", "hydration"])
 		if (data[i]) {
 			data.autosave[i] = data[i];
 			delete data[i];
 		}
-	// add volume property
-	data.volume || (data.volume = {});
+
+	// (v1.6.1)
+	// move existing autosave data to be standard save data
+	if (data.autosave) {
+		data.save = data.autosave || {};
+		delete data.autosave;
+		// rename autosave toggle value
+		if (data.save.enabled) {
+			data.save.autosave = data.save.enabled;
+			delete data.save.enabled;
+		}
+	}
 
 	// save the new data
 	saveCookie(water.save, encodeData(data));
 
 	// return data if debugging
-	if (debug) return data;
+	if (noReload) return data;
 	// reload the page if not debugging
 	else window.location.reload();
 }

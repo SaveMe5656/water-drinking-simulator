@@ -1,11 +1,18 @@
-I am sincerely sorry
-
 water drinking simulator by CommandCreep <ins>[@saveme5656]</ins> <br>
 art by and inspiration thanks to <ins>@motdab</ins>
 
 
-
 ## changelog:
+### v1.6.1 (current)
+  * remove support for fixing save data before [v1.4.0](#v140)
+    - because of the way the cookie library worked before 1.4, save data would be deleted automatically by the browser 1 month after it was saved. it's been roughly a month since 1.4, and since it's reasonable to assume any remaining trace of save data from then is likely to have been deleted, support for pre-1.4 data is now deprecated
+    - for anyone who's played after v1.4, or who has used the migrate/fix save data feature since, this shouldn't be anything to worry about &#x1f601;
+  * change save data to load regardless of autosave state
+  * move save data from old autosave property to standard save property
+  * add automatic save data fixing on new game versions
+  * fix loading invalid save data
+  * add invalid save data import detection
+
 ### v1.6.0
   * add save data importing and exporting
 

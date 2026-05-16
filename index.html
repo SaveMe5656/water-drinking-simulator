@@ -3,9 +3,10 @@
 
 <head>
 	<script src="https://cdn.jsdelivr.net/npm/p5@latest/lib/p5.js"></script>
-	<script src="/cookies.js"></script>
+	<script src="/assets/cookies.js"></script>
 
 	<script src="/assets/load.js"></script>
+	<script src="/assets/emoji-img.js"></script>
 
 	<meta name="color-scheme" class="theme" content="light dark" />
 	<style class="theme"></style>
@@ -58,15 +59,15 @@
 	<meta charset="UTF-8">
 </head>
 
-<body>
+<body onload="EmojiImg.convertPage();">
 	<main></main>
 	<script src="sketch.js"></script>
 	<button id="save" onclick="saveGame()">
-		<img class="emoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/svg/1f4be.svg" alt="&#x1F5AB;">
+		<emoji-img data="1F4bE"></emoji-img>
 		save
 	</button>
 	<button id="reset" onclick="initGame()">
-		<img class="emoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/svg/1f504.svg" alt="&#x27F3;">
+		<emoji-img data="1F504"></emoji-img>
 		reset
 	</button>
 
@@ -85,13 +86,11 @@
 			<label for="volume">volume:</label>
 			<div id="volume">
 				<label for="sound">
-					<img class="emoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/svg/1f50a.svg"
-						alt="&#x1F50A;">
+					<emoji-img data="1F50A"></emoji-img>
 				</label>
 				<input id="sound" type="range" max="1" step=".1" value="1" onchange="changeVolume()">
 				<label for="music">
-					<img class="emoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/svg/1f3b5.svg"
-						alt="&#x1F3B5;">
+					<emoji-img data="1F3B5"></emoji-img>
 				</label>
 				<input id="music" type="range" max="1" step=".1" value=".5" onchange="changeVolume('music')">
 			</div>
@@ -108,7 +107,7 @@
 			<strong>gameplay modifiers:</strong>
 			<button id="resetParam"
 				onclick="for(x of document.getElementById('difficulty').getElementsByTagName('input'))x.value=undefined">
-				<img class="emoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/svg/1f504.svg" alt="&#x27F3;">
+				<emoji-img data="1F504"></emoji-img>
 			</button>
 			<br>
 			<span>bottle capacity:</span>
@@ -128,22 +127,19 @@
 			<br>
 			<textarea id="data" style="width:50%;height:3.5em;resize:none"></textarea>
 			<div style="display:inline-block">
-				<button onclick="document.getElementById('data').value=encodeData(requestData(water.save))">
-					<img class="emoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/svg/1f4e4.svg"
-						alt="&#x1F4E4;">
+				<button onclick="exportData()">
+					<emoji-img data="1F4E4"></emoji-img>
 					export
 				</button>
 				<br>
 				<button onclick="importData()">
-					<img class="emoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/svg/1f4e5.svg"
-						alt="&#x1F4E5;">
+					<emoji-img data="1F4E5"></emoji-img>
 					import
 				</button>
 			</div>
 			<br>
-			<button onclick="migrateSave()">
-				<img class="emoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/svg/1f6e0.svg"
-					alt="&#x1F6E0;">
+			<button onclick="repairData()">
+				<emoji-img data="1F6E0"></emoji-img>
 				fix save data
 			</button>
 			<span title="new updates can break things! check the changelog if a recent change may have broken your save data"
@@ -165,7 +161,7 @@
 	<br><br>
 
 	<small>
-		<img class="emoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/svg/1f36a.svg" alt="&#x1F36A;">
+		<emoji-img data="1F36A"></emoji-img>
 		this page uses cookies to save configuration and gameplay data
 	</small>
 

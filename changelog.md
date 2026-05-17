@@ -1,9 +1,16 @@
-water drinking simulator by CommandCreep <ins>[@saveme5656]</ins> <br>
+by CommandCreep <ins>[@saveme5656]</ins> <br>
 art by and inspiration thanks to <ins>@motdab</ins>
 
 
 ## changelog:
-### v1.6.1 (current)
+### v1.6.2 (current)
+  * make score display with fixed decimal point
+  * change how displaying score/highscore is handled
+  * disable highscore display if no highscore is saved
+  * try to remove reliance on frame rate
+  * move data handling functions to separate script
+
+### v1.6.1
   * remove support for fixing save data before [v1.4.0](#v140)
     - because of the way the cookie library worked before 1.4, save data would be deleted automatically by the browser 1 month after it was saved. it's been roughly a month since 1.4, and since it's reasonable to assume any remaining trace of save data from then is likely to have been deleted, support for pre-1.4 data is now deprecated
     - for anyone who's played after v1.4, or who has used the migrate/fix save data feature since, this shouldn't be anything to worry about &#x1f601;

@@ -1,9 +1,9 @@
 // object to store/get game values
 let water = {
 	// game version
-	version: "v1.6.2",
+	version: "v1.6.3",
+	// score object
 	score: {
-		value: 0,
 		// function to return score/highscore string
 		string() {
 			// generate string to inform score
@@ -15,6 +15,10 @@ let water = {
 			return string;
 		}
 	},
+	// game tick object
+	tick: {
+		last: 0
+	},
 	// help text controller
 	help: [true, 6],
 	// save data cookie name
@@ -25,9 +29,6 @@ let water = {
 async function setup() {
 	// request save data
 	let data = requestData(water.save);
-
-	// init autosaving every minute
-	water.autosave = setInterval(() => { saveGame("autosave") }, 6e4);
 
 	// init audio
 	water.audio = {
@@ -66,90 +67,13 @@ async function setup() {
 	initGame("setup");
 }
 
-// function that runs on game reset
-function initGame(method) {
-	// request save data
-	let data = requestData(water.save);
-
-	// execute on setup
-	if (method == "setup") {
-		// display game version on HTML page
-		document.getElementById("version").innerHTML = water.version;
-
-		// execute if data version doesn't match game version
-		if (!data.version.includes(water.version)) {
-			// attempt to fix save data 
-			data = repairData(1);
-
-			// save new game versions to cookies
-			data.version.push(water.version);
-		}
-
-		// set game volume
-		data.volume = {
-			sound: changeVolume(data.volume.sound),
-			music: changeVolume("music", data.volume.music)
-		};
-
-		// update HTML volume sliders
-		document.getElementById("sound").value = data.volume.sound,
-			document.getElementById("music").value = data.volume.music;
-
-		// enable autosave checkbox on HTML page if enabled
-		(data.save.autosave || data.save.autosave === undefined) && (document.getElementById("autosave").checked = true);
-
-		// init hydration
-		water.hydration = {
-			real: data.save.hydration || 50
-		};
-
-		// init score
-		water.score.offset = -data.save.score || frameCount / getTargetFrameRate();
-	}
-	// execute otherwise
-	else {
-		// init hydration and score
-		water.hydration = { real: 50 };
-		water.score.offset = frameCount / getTargetFrameRate();
-	}
-
-	// init highscore
-	water.score.highscore = data.highscore || 0;
-
-	// store HTML page inputs to temporary variables
-	let bottleInput = document.getElementById("bottleIn").value,
-		speedInput = document.getElementById("speedIn").value,
-		cooldownInput = document.getElementById("cooldownIn").value;
-
-	// init bottle capacity
-	water.bottle = bottleInput || 30;
-
-	// init dehydration speed
-	water.speed = speedInput ? 1 / speedInput : 1 / 90;
-
-	// init drinking cooldown
-	water.cooldown = {
-		value: cooldownInput || round(2.28 * getTargetFrameRate()),
-		timer: 0
-	};
-
-	// store the new data object
-	saveCookie(water.save, encodeData(data));
-
-	// reset water drinking sound
-	water.audio.sound.drink.stop();
-
-	// attempt BGM playback
-	testBgmPlayback();
-
-	// reinit game loop
-	loop();
-}
-
 // draw loop
 function draw() {
-	// calculate mean frames per second
-	let fps = frameCount / millis() * 1e3;
+	// store current tick timestamp
+	water.tick.current = millis() / 1e3 * getTargetFrameRate();
+
+	// calculate game tick modifier
+	water.tick.modifier = water.tick.current - water.tick.last;
 
 	// calculate round hydration
 	water.hydration.mean = round(water.hydration.real);
@@ -160,12 +84,15 @@ function draw() {
 		cursor(HAND);
 
 		// render Gerald dependent on water drinking
-		water.cooldown.timer > frameCount
-			? image(water.image.drink, 0, 0)
-			: image(water.image.idle, 0, 0);
+		if (water.cooldown.timer > 0) {
+			image(water.image.drink, 0, 0)
+			// decrement cooldown variable
+			water.cooldown.timer -= water.tick.modifier / getTargetFrameRate();
+		}
+		else image(water.image.idle, 0, 0);
 
 		// store current score
-		water.score.value = frameCount / fps - water.score.offset;
+		water.score.value += water.tick.modifier / getTargetFrameRate();
 
 		// display score
 		fill(0);
@@ -173,7 +100,7 @@ function draw() {
 		text(water.score.string(), 5, 5 + textSize());
 
 		// display help text before first click
-		if (water.help[1]) {
+		if (water.help[1] > 0) {
 			// height offset value
 			let heightOffset = ((2 + !!water.score.highscore) * textLeading())
 			// help text
@@ -181,7 +108,7 @@ function draw() {
 			fill("#0AE" + round(15 * (water.help[1] / 6)).toString(16));
 			text(" click to drink", 5 + textLeading(), (5 + textSize()) + heightOffset);
 			// first click fade out
-			water.help[0] || water.help[1]--;
+			water.help[0] || (water.help[1] -= water.tick.modifier);
 		}
 
 		// display hydration status
@@ -198,7 +125,10 @@ function draw() {
 		rect(5, height - 10, water.hydration.real, 5, 2.5);
 
 		// decrement hydration
-		water.hydration.real -= water.speed * 60 / fps;
+		water.hydration.real -= water.speed / water.tick.modifier / getTargetFrameRate() * 60;
+
+		// store last tick timestamp
+		water.tick.last = water.tick.current;
 	}
 	// execute if unsufficiently or improperly hydrated
 	else {
@@ -245,6 +175,92 @@ function draw() {
 	}
 }
 
+// function that runs on game reset
+function initGame(method) {
+	// request save data
+	let data = requestData(water.save);
+
+	// execute on setup
+	if (method == "setup") {
+		// display game version on HTML page
+		document.getElementById("version").innerHTML = water.version;
+
+		// execute if data version doesn't match game version
+		if (!data.version.includes(water.version)) {
+			// attempt to fix save data 
+			data = repairData(1);
+
+			// save new game versions to cookies
+			data.version.push(water.version);
+		}
+
+		// set game volume
+		data.volume = {
+			sound: changeVolume(data.volume.sound),
+			music: changeVolume("music", data.volume.music)
+		};
+
+		// update HTML volume sliders
+		document.getElementById("sound").value = data.volume.sound,
+			document.getElementById("music").value = data.volume.music;
+
+		// enable autosave checkbox on HTML page if enabled
+		(data.save.autosave || data.save.autosave === undefined) && (document.getElementById("autosave").checked = true);
+
+		// init hydration
+		water.hydration = {
+			real: data.save.hydration || 50
+		};
+
+		// init score
+		water.score.value = data.save.score || 0;
+	}
+	// execute otherwise
+	else {
+		// init hydration and score
+		water.hydration = { real: 50 };
+		water.score.value = 0;
+	}
+
+	// init autosave timer
+	clearInterval(water.autosave);
+	water.autosave = setInterval(() => { saveGame("autosave") }, 6e4);
+
+	// init score incrementing timer
+
+	// init highscore
+	water.score.highscore = data.highscore || 0;
+
+	// store HTML page inputs to temporary variables
+	let bottleInput = document.getElementById("bottleIn").value,
+		speedInput = document.getElementById("speedIn").value,
+		cooldownInput = document.getElementById("cooldownIn").value;
+
+	// init bottle capacity
+	water.bottle = bottleInput || 30;
+
+	// init dehydration speed
+	water.speed = speedInput ? 1 / speedInput : 1 / 90;
+
+	// reset drinking cooldown
+	water.cooldown = {
+		timer: 0,
+		value: cooldownInput || 2.28
+	};
+
+	// store the new data object
+	saveCookie(water.save, encodeData(data));
+
+	// reset water drinking sound
+	water.audio.sound.drink.stop();
+
+	// attempt BGM playback
+	testBgmPlayback();
+
+	// reinit game loop
+	loop();
+}
+
 // function that runs on canvas click
 function gameClicked() {
 	// only execute if sufficiently and properly hydrated
@@ -256,7 +272,7 @@ function gameClicked() {
 		water.audio.sound.drink.play();
 
 		// set cooldown
-		water.cooldown.timer = frameCount + water.cooldown.value;
+		water.cooldown.timer = water.cooldown.value;
 
 		// hydrate
 		water.hydration.real += water.bottle;

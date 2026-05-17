@@ -3,7 +3,14 @@ art by and inspiration thanks to <ins>@motdab</ins>
 
 
 ## changelog:
-### v1.6.2 (current)
+### v1.6.3 (current)
+  * improve fix for reliance on frame rate
+    - the old method used an *overall average* FPS to calculate score/hydration. this caused the game to speed up if it were to stop for a while (like tabbing out of the game)
+    - this has been replaced with a system that calculates based on how long the game has been running (which should also fix the game pausing when tabbing out)
+  * reset autosave timer on new game
+  * fix cooldown gameplay modifier
+
+### v1.6.2
   * make score display with fixed decimal point
   * change how displaying score/highscore is handled
   * disable highscore display if no highscore is saved

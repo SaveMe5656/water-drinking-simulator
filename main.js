@@ -1,7 +1,7 @@
 // object to store/get game values
 let water = {
 	// game version
-	version: "v1.6.3",
+	version: "v1.6.4",
 	// score object
 	score: {
 		// function to return score/highscore string
@@ -125,7 +125,7 @@ function draw() {
 		rect(5, height - 10, water.hydration.real, 5, 2.5);
 
 		// decrement hydration
-		water.hydration.real -= water.speed / water.tick.modifier / getTargetFrameRate() * 60;
+		water.hydration.real -= water.speed * water.tick.modifier / getTargetFrameRate() * 60;
 
 		// store last tick timestamp
 		water.tick.last = water.tick.current;

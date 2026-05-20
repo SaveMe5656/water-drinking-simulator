@@ -3,7 +3,14 @@ art by and inspiration thanks to <ins>@motdab</ins>
 
 
 ## changelog:
-### v1.6.4 (current)
+### v1.6.5 (current)
+  * tweak some color values
+  * tweak score display formatting
+  * fix score/hydration being offset on game reset after game over
+  * fix score increasing past game over on frame desync
+  * remove an unnecessary line of code
+
+### v1.6.4
   * fix hydration not decreasing when tabbing out
 
 ### v1.6.3

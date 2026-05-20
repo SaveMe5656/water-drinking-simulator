@@ -1,13 +1,13 @@
 // object to store/get game values
 let water = {
 	// game version
-	version: "v1.6.4",
+	version: "v1.6.5",
 	// score object
 	score: {
 		// function to return score/highscore string
 		string() {
 			// generate string to inform score
-			let string = "score: " + (water.score.value ? water.score.value.toFixed(1) : 0);
+			let string = "score: " + water.score.value.toFixed(1);
 			// append highscore if exists
 			water.score.highscore && (string += "\nhighscore: " + water.score.highscore.toFixed(1));
 
@@ -39,9 +39,6 @@ async function setup() {
 			bgm: createAudio("assets/Sneaky%20Snitch.mp3")
 		}
 	};
-
-	// adjust BGM volume
-	water.audio.music.bgm.volume(0.5);
 
 	// init images
 	water.image = {
@@ -75,9 +72,6 @@ function draw() {
 	// calculate game tick modifier
 	water.tick.modifier = water.tick.current - water.tick.last;
 
-	// calculate round hydration
-	water.hydration.mean = round(water.hydration.real);
-
 	// execute if sufficiently and properly hydrated
 	if (water.hydration.mean >= 0 && water.hydration.mean <= 100) {
 		// display the cursor as hand if over the canvas
@@ -91,21 +85,13 @@ function draw() {
 		}
 		else image(water.image.idle, 0, 0);
 
-		// store current score
-		water.score.value += water.tick.modifier / getTargetFrameRate();
-
-		// display score
-		fill(0);
-		textAlign(LEFT, BASELINE);
-		text(water.score.string(), 5, 5 + textSize());
-
 		// display help text before first click
 		if (water.help[1] > 0) {
 			// height offset value
 			let heightOffset = ((2 + !!water.score.highscore) * textLeading())
 			// help text
 			image(water.image.mouseHint, 5, 5 + heightOffset, textLeading(), textLeading());
-			fill("#0AE" + round(15 * (water.help[1] / 6)).toString(16));
+			fill("#0af" + round(15 * (water.help[1] / 6)).toString(16));
 			text(" click to drink", 5 + textLeading(), (5 + textSize()) + heightOffset);
 			// first click fade out
 			water.help[0] || (water.help[1] -= water.tick.modifier);
@@ -120,12 +106,26 @@ function draw() {
 		fill(128);
 		stroke(0);
 		rect(4.5, height - 10.5, 101, 6, 3);
-		fill(water.hydration.real > 15 ? "#0AE" : "#E43");
+		fill(water.hydration.real > 15 ? "#0af" : "#f43");
 		noStroke();
 		rect(5, height - 10, water.hydration.real, 5, 2.5);
 
 		// decrement hydration
 		water.hydration.real -= water.speed * water.tick.modifier / getTargetFrameRate() * 60;
+
+		// calculate round hydration
+		water.hydration.mean = round(water.hydration.real);
+
+		// increment score
+		water.score.value += water.tick.modifier / getTargetFrameRate();
+
+		// recalculate score based on hydration state
+		water.hydration.mean < 0 && (water.score.value += (water.hydration.real + .5) / water.speed / getTargetFrameRate());
+
+		// display score
+		fill(0);
+		textAlign(LEFT, BASELINE);
+		text(water.score.string(), 5, 5 + textSize());
 
 		// store last tick timestamp
 		water.tick.last = water.tick.current;
@@ -141,12 +141,12 @@ function draw() {
 		// show game over text
 		if (water.hydration.mean < 0) {
 			// insufficient hydration message
-			background("#d12");
+			background("#f43");
 			text("you perished of\n  dehydration...\n\n\n\n", width / 2, height / 2);
 		}
 		else if (water.hydration.mean > 100) {
 			// overhydration message
-			background("#E26");
+			background("#f26");
 			text("you overhydrated\nand drowned!\n\n\n\n", width / 2, height / 2);
 		}
 		textStyle(BOLD);
@@ -208,9 +208,7 @@ function initGame(method) {
 		(data.save.autosave || data.save.autosave === undefined) && (document.getElementById("autosave").checked = true);
 
 		// init hydration
-		water.hydration = {
-			real: data.save.hydration || 50
-		};
+		water.hydration = { real: data.save.hydration || 50 };
 
 		// init score
 		water.score.value = data.save.score || 0;
@@ -220,7 +218,13 @@ function initGame(method) {
 		// init hydration and score
 		water.hydration = { real: 50 };
 		water.score.value = 0;
+
+		// init game tick
+		water.tick.last = millis() / 1e3 * getTargetFrameRate();
 	}
+
+	// init mean hydration
+	water.hydration.mean = round(water.hydration.real);
 
 	// init autosave timer
 	clearInterval(water.autosave);
@@ -357,6 +361,6 @@ function saveGame(method) {
 		data.save.autosave == false || (data.save.autosave = false);
 	}
 
-	// store the new data object
-	saveCookie(water.save, encodeData(data));
+	// store the new data object if hydration is valid
+	water.hydration.mean < 0 || saveCookie(water.save, encodeData(data));
 }

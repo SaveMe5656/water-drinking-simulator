@@ -1,6 +1,13 @@
+palettes:
+  - name: wds
+    fixed-entries:
+      - image: palette.png
+
 converts:
-  - name: wds-assets
-    palette: xlibc
+  - name: compressed
+    palette: wds
+    compress: zx7
+    width-and-height: false
     images:
       - waterd2.png
       - waterd33.png
@@ -8,5 +15,7 @@ converts:
 outputs:
   - type: c
     include-file: gfx.h
+    palettes:
+      - wds
     converts:
-      - wds-assets
+      - compressed

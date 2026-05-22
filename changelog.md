@@ -1,5 +1,5 @@
-by CommandCreep <ins>[@saveme5656]</ins> <br>
-art by and inspiration thanks to <ins>@motdab</ins>
+by CommandCreep [[@SaveMe5656](https://github.com/SaveMe5656)] <br>
+art by and inspiration thanks to *@motdab*
 
 
 ## changelog:

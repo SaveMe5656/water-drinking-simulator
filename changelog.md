@@ -3,6 +3,12 @@ official port by CommandCreep [[@SaveMe5656](https://github.com/SaveMe5656)]
 art by & inspiration thanks to *@motdab*
 
 ## changelog
+### demo #3
+shape test. just rectangles since as far as I know those are the most I'll need for when I start work on the actual game as opposed to these demos
+- rework how drawing frames is handled
+- change keys for background switcher
+- add mock hydration bar
+
 ### demo #2
 fonts! text is definitely something that's needed, and this is a test to make sure printing text works correctly  
 still just a tech demo; printing test characters is now a feature

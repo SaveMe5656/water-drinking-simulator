@@ -10,9 +10,10 @@
 #include <compression.h>
 #include <ti/getcsc.h>
 
+#include "draw.h"
 #include "text.h"
 
-/** useful code snippets to remember:
+/* useful code snippets to remember:
 
 draw imgname as background
 `zx7_Decompress(gfx_vram, imgname_compressed);`
@@ -20,12 +21,14 @@ draw imgname as background
 fill screen with color from palette
 `gfx_FillScreen(0);`
 */
+
 int main()
 {
 	// init vars for demo
 	uint8_t key;
 	uint8_t bg_scene = 0, bg_flag = 1;
 	uint8_t text_glyph = 0, text_style = 0, text_flag = 1;
+	uint8_t shape_flag = 1, shape_width = 50;
 
 	// get Mr. Sans font (modified Dr. Sans by DrDnar)
 	char *text_font = wds_getFont("Mr. Sans");
@@ -37,8 +40,8 @@ int main()
 	// fontlib_SetTransparency(true);
 	fontlib_SetColors(0, 1);
 
-	// begin graphics mode
-	gfx_Begin();
+	// begin drawing
+	wds_beginDraw();
 
 	// set global palette
 	gfx_SetPalette(wds_palette, sizeof_wds_palette, 0);
@@ -46,7 +49,7 @@ int main()
 	// begin loop
 	do
 	{
-		// test to draw background if flag enabled
+		// test to draw background if any draw flags enabled
 		if (bg_flag || text_flag)
 		{
 			// test scene value
@@ -54,12 +57,12 @@ int main()
 			{
 				// idle if 0
 			case 0:
-				zx7_Decompress(gfx_vram, waterd2_compressed);
+				zx7_Decompress(gfx_vbuffer, waterd2_compressed);
 				break;
 
 				// drinking if 1
 			case 1:
-				zx7_Decompress(gfx_vram, waterd33_compressed);
+				zx7_Decompress(gfx_vbuffer, waterd33_compressed);
 				break;
 
 				// dehydrate if 2
@@ -73,6 +76,7 @@ int main()
 				break;
 			}
 			text_flag = 1;
+			shape_flag = 1;
 		}
 
 		// draw current glyph and debug text if flag enabled
@@ -84,29 +88,49 @@ int main()
 			fontlib_DrawUInt(text_glyph, 1);
 		}
 
+		// draw test shapes
+		if (shape_flag)
+		{
+			// draw base shape
+			gfx_SetColor(1);
+			gfx_FillRectangle_NoClip(4, GFX_LCD_HEIGHT - 11, 102, 7);
+			gfx_SetColor(4);
+			gfx_FillRectangle_NoClip(5, GFX_LCD_HEIGHT - 10, 100, 5);
+
+			// draw variable shape
+			if (shape_width > 15)
+				gfx_SetColor(2);
+			else
+				gfx_SetColor(5);
+			gfx_FillRectangle_NoClip(5, GFX_LCD_HEIGHT - 10, shape_width, 5);
+		}
+
+		// draw frame if any draw flags enabled
+		if (bg_flag || text_flag || shape_flag)
+			wds_drawFrame();
+
 		// store key
 		key = os_GetCSC();
 
 		// enable draw flags
 		bg_flag = 1;
 		text_flag = 1;
+		shape_flag = 1;
 
 		// test pressed key for scene switching
 		switch (key)
 		{
-			// [right]/[up]: increment scene
-		case sk_Right:
+		// [up]: increment scene
 		case sk_Up:
 			bg_scene++;
 			break;
 
-			// [left]/[down]: decrement scene
-		case sk_Left:
+		// [down]: decrement scene
 		case sk_Down:
 			bg_scene--;
 			break;
 
-			// default: disable bg draw flag
+		// default: disable bg draw flag
 		default:
 			bg_flag = 0;
 			break;
@@ -115,7 +139,7 @@ int main()
 		// test pressed key for glyph printing
 		switch (key)
 		{
-			// [+]: increment glyph code
+		// [+]: increment glyph code
 		case sk_Add:
 			text_glyph++;
 			break;
@@ -158,12 +182,31 @@ int main()
 			text_flag = 0;
 			break;
 		}
+
+		// test pressed key for shape drawing
+		switch (key)
+		{
+		// [left]: decrease width
+		case sk_Left:
+			shape_width > 0 && shape_width--;
+			break;
+
+		// [right]: decrease width
+		case sk_Right:
+			shape_width < 100 && shape_width++;
+			break;
+
+		// default: disable shape draw flag
+		default:
+			shape_flag = 0;
+			break;
+		}
 	}
 	// continue looping until [clear] pressed
 	while (key != sk_Clear);
 
-	// end graphics mode
-	gfx_End();
+	// end drawing
+	wds_endDraw();
 
 	// end program
 	return 0;

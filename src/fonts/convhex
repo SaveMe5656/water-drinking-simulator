@@ -1,0 +1,1 @@
+wine ./convhex.exe $@

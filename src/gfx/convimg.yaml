@@ -1,11 +1,11 @@
 palettes:
-  - name: wds
+  - name: wds_palette
     fixed-entries:
       - image: palette.png
 
 converts:
   - name: compressed
-    palette: wds
+    palette: wds_palette
     compress: zx7
     width-and-height: false
     images:
@@ -16,6 +16,6 @@ outputs:
   - type: c
     include-file: gfx.h
     palettes:
-      - wds
+      - wds_palette
     converts:
       - compressed

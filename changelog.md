@@ -3,7 +3,7 @@ official port by CommandCreep [[@SaveMe5656](https://github.com/SaveMe5656)]
 art by & inspiration thanks to *@motdab*
 
 ## changelog
-### v1 alpha #2
+### demo #2
 fonts! text is definitely something that's needed, and this is a test to make sure printing text works correctly  
 still just a tech demo; printing test characters is now a feature
 - create a font
@@ -18,7 +18,7 @@ still just a tech demo; printing test characters is now a feature
 - add glyph displayer
 
 
-### v1 alpha #1
+### demo #1
 currently nothing but a tech demo; can switch between four background states, nothing else yet
 - setup program properties
 - setup some build scripts

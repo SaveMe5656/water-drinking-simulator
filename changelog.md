@@ -1,9 +1,17 @@
-by CommandCreep [[@SaveMe5656](https://github.com/SaveMe5656)] <br>
+by CommandCreep [[@SaveMe5656](https://github.com/SaveMe5656)]   
 art by and inspiration thanks to *@motdab*
 
 
 ## changelog:
-### v1.6.5 (current)
+### v1.6.6 (current)
+  * fix config data fixer  
+    check for:
+    - array of played game versions
+    - save data object
+    - volume parameter object
+  * add debug features to main version by search parameter
+
+### v1.6.5
   * tweak some color values
   * tweak score display formatting
   * fix score/hydration being offset on game reset after game over
@@ -59,7 +67,7 @@ art by and inspiration thanks to *@motdab*
 ### v1.5.1
   * fix page theme selector being blank
   * remove "debug" from version number
-    - unintentional carry-over from the [dev. version](https://editor.p5js.org/CommandCreep/full/qY7HtUx37) (you can check it out if you want **:D**)
+    - unintentional carry-over from the [dev. version](../?debug) (you can check it out if you want **:D**)
 
 ### v1.5.0
   * add page theming

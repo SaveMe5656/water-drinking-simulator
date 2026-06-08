@@ -1,7 +1,7 @@
 // object to store/get game values
 let water = {
 	// game version
-	version: "v1.6.5",
+	version: "v1.6.6",
 	// score object
 	score: {
 		// function to return score/highscore string

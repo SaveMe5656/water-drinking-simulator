@@ -21,12 +21,12 @@ I made this game in a little under a day after having inspiration for a while fr
 
 
 ## variations/ports
-- [wdsCE](https://github.com/SaveMe5656/water-drinking-simulator/tree/wdsCE): official port to the TI-84 Plus CE line of calculators
-- [wdsGB](https://github.com/bizkitdog/wdsGB): demake by [@bizkitdog](https://github.com/bizkitdog) to Nintendo Game Boy
+- [wdsCE](https://github.com/SaveMe5656/water-drinking-simulator/tree/wdsCE): official port to the TI-84 Plus CE calculator
+- [wdsGB](https://github.com/bizkitdog/wdsGB): demake by [@bizkitdog](https://github.com/bizkitdog) to the Nintendo Game Boy
 
 
 ## credits
-thank you *@motdab* for character and design, as well as inspiration for everything
+thank you *@motdab* for the game's mascot Gerald Waterguy, his design, and the inspiration for the game itself
 
 shoutout to [p5.js](https://p5js.org) for being an excellent library for a mediocre programmer like me **:p**
 

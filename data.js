@@ -31,10 +31,10 @@ function importData(b64Data, noReload) {
 	}
 
 	// store the new save data
-	saveCookie(water.save, b64Data);
+	const returnVal = saveCookie(water.save, b64Data);
 
 	// return data if debugging
-	if (noReload) return b64Data;
+	if (noReload) return returnVal;
 	// reload the page otherwise
 	else window.location.reload();
 }
@@ -60,6 +60,10 @@ function repairData(noReload) {
 	// request save data
 	let data = requestData(water.save);
 
+	// (1.5.0)
+	// init array for game versions played
+	data.version || (data.version = []);
+
 	// (1.5.2)
 	// move all autosave data to one property
 	if (data.autosaveEnabled) {
@@ -71,11 +75,14 @@ function repairData(noReload) {
 			data.autosave[i] = data[i];
 			delete data[i];
 		}
+	// init volume
+	data.volume || (data.volume = {});
 
 	// (v1.6.1)
+	// init save data
+	data.save = data.autosave || {};
 	// move existing autosave data to be standard save data
 	if (data.autosave) {
-		data.save = data.autosave || {};
 		delete data.autosave;
 		// rename autosave toggle value
 		if (data.save.enabled) {

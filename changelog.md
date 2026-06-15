@@ -3,6 +3,12 @@ official port by CommandCreep [[@SaveMe5656](https://github.com/SaveMe5656)]
 art by & inspiration thanks to *@motdab*
 
 ## changelog
+### demo #4
+save data is working! took a lot of learning and headaches but saving and loading from a TI AppVar is now implemented  
+still need to program something to return saved values after decoding them from their native ASCII-based format
+- optimize drawing hydration meter
+- add AppVar saving/loading system
+
 ### demo #3
 shape test. just rectangles since as far as I know those are the most I'll need for when I start work on the actual game as opposed to these demos
 - rework how drawing frames is handled

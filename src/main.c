@@ -67,7 +67,9 @@ int main()
   uint8_t key;
   uint8_t bg_scene = 0, bg_flag = 1;
   uint8_t text_glyph = 0, text_style = 0, text_flag = 1;
-  uint8_t shape_flag = 1, shape_width = 50;
+  uint8_t shape_flag = 1, shape_width = 50, shape_colorOffset;
+  uint8_t data_flag = 0;
+  uint16_t data_hydration_raw = shape_width * 30;
 
   // open data
   char *data;
@@ -93,7 +95,8 @@ int main()
   do
   {
     // test to draw background if any draw flags enabled
-    if (bg_flag || text_flag)
+    // note to self: don't redraw entire background in proper version
+    if (bg_flag || text_flag || shape_flag || data_flag)
     {
       // test scene value
       switch (3 & bg_scene)
@@ -118,36 +121,70 @@ int main()
         gfx_FillScreen(5);
         break;
       }
+
       text_flag = 1;
       shape_flag = 1;
+    }
+
+    // encode/decode save data, display
+    if (data_flag)
+    {
+      wds_encode(&data_hydration_raw, 2, &data, 3);
     }
 
     // draw current glyph and debug text if flag enabled
     if (text_flag)
     {
+      // font glyph
       fontlib_SetCursorPosition(0, 0);
       fontlib_DrawGlyph(text_glyph);
       fontlib_SetCursorPosition(0, 10);
       fontlib_DrawUInt(text_glyph, 1);
-      fontlib_SetCursorPosition(0, 20);
+
+      // data properties
+      fontlib_SetCursorPosition(0, 22);
       fontlib_DrawString(data);
+      data_hydration_raw = shape_width * 30;
+      fontlib_SetCursorPosition(0, 32);
+      fontlib_DrawUInt(data_hydration_raw, 1);
+      fontlib_DrawString(", ");
+      fontlib_DrawUInt(wds_decodeValue(data, 3), 1);
+
+      // hydration bar properties
+      fontlib_SetCursorPosition(0, 45);
+      fontlib_DrawUInt(shape_width, 1);
+      fontlib_SetCursorPosition(0, 55);
+      fontlib_DrawUInt(shape_colorOffset, 1);
     }
 
     // draw test shapes
     if (shape_flag)
     {
-      // draw base shape
-      gfx_SetColor(1);
-      gfx_Rectangle_NoClip(4, GFX_LCD_HEIGHT - 11, 102, 7);
-      gfx_SetColor(4);
-      gfx_FillRectangle_NoClip(5, GFX_LCD_HEIGHT - 10, 100, 5);
-
-      // draw variable shape
+      // set progress bar color
       if (shape_width > 15)
-        gfx_SetColor(2);
+        shape_colorOffset = 1;
       else
-        gfx_SetColor(5);
-      gfx_FillRectangle_NoClip(5, GFX_LCD_HEIGHT - 10, shape_width, 5);
+        shape_colorOffset = 2;
+
+      // draw progress bar
+      // note to future self: when properly drawing progress bar, draw only the segments needed to update it instead of all progress bar segments
+      for (uint8_t i = 0; i < 102; i++)
+      {
+        // init shape modifier value
+        uint8_t shape_mod = 0;
+
+        // modify shape color
+        if (i < shape_width + 1)
+          shape_mod += (progressbar_num_tiles / 3) * shape_colorOffset;
+
+        // modify shape end
+        if (i < ((progressbar_num_tiles / 3) - 1))
+          shape_mod += i + 1;
+        else if (i > 102 - ((progressbar_num_tiles / 3) - 1))
+          shape_mod += 102 - i;
+
+        gfx_Sprite(progressbar_tiles[shape_mod], 4 + i, GFX_LCD_HEIGHT - 11);
+      }
     }
 
     // draw frame if any draw flags enabled
@@ -161,6 +198,7 @@ int main()
     bg_flag = 1;
     text_flag = 1;
     shape_flag = 1;
+    data_flag = 1;
 
     // test pressed key for scene switching
     switch (key)
@@ -244,6 +282,18 @@ int main()
     // default: disable shape draw flag
     default:
       shape_flag = 0;
+      break;
+    }
+
+    // test pressed key for data updating
+    switch (key)
+    {
+    case sk_Enter:
+      data_flag = 1;
+      break;
+
+    default:
+      data_flag = 0;
       break;
     }
   }

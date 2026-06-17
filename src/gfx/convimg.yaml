@@ -4,13 +4,20 @@ palettes:
       - image: palette.png
 
 converts:
-  - name: compressed
+  - name: wds_background
     palette: wds_palette
     compress: zx7
     width-and-height: false
     images:
       - waterd2.png
       - waterd33.png
+  - name: wds_progressbar
+    palette: wds_palette
+    tilesets:
+      images:
+        - progressbar.png
+      tile-width: 1
+      tile-height: 7
 
 outputs:
   - type: c
@@ -18,4 +25,5 @@ outputs:
     palettes:
       - wds_palette
     converts:
-      - compressed
+      - wds_background
+      - wds_progressbar

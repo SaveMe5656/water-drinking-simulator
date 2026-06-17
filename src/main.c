@@ -113,12 +113,12 @@ int main()
 
         // dehydrate if 2
       case 2:
-        gfx_FillScreen(4);
+        gfx_FillScreen(5);
         break;
 
         // overhydrate (drown) if 3 (if otherwise)
       default:
-        gfx_FillScreen(5);
+        gfx_FillScreen(6);
         break;
       }
 

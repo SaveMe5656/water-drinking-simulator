@@ -3,6 +3,9 @@ official port by CommandCreep [[@SaveMe5656](https://github.com/SaveMe5656)]
 art by & inspiration thanks to *@motdab*
 
 ## changelog
+### demo #5 patch #1
+- adjust background drawing for palette changes
+
 ### demo #5
 updated hydration bar with sprite-based rounded edges. also implemented decoding/encoding data after loading it from the TI AppVar
 - updated hydration bar rendering

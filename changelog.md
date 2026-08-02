@@ -3,7 +3,14 @@ art by and inspiration thanks to *@motdab*
 
 
 ## changelog:
-### v1.6.6 (current)
+### v1.6.7 (current)
+  * rework audio handling
+    - switch from p5.js `createAudio()` to standard Web API `Audio()` constructor
+    - list asset locations in JSON
+    - fetch and load assets from JSON
+  * make some preparations for next version **:)**
+
+### v1.6.6
   * fix config data fixer  
     check for:
     - array of played game versions

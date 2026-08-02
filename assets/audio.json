@@ -1,0 +1,14 @@
+{
+  "music": {
+    "bgm": {
+      "default": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Sneaky%20Snitch.mp3",
+      "hordon": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/March%20of%20the%20Spoons.mp3"
+    }
+  },
+  "sound": {
+    "drink": {
+      "default": "assets/bloxy-cola.mp3",
+      "hordon": "assets/bonk.mp3"
+    }
+  }
+}

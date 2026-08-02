@@ -2,6 +2,8 @@
 let water = {
 	// game version
 	version: "v1.6.6",
+	// temporary season value
+	season: "default",
 	// score object
 	score: {
 		// function to return score/highscore string
@@ -14,6 +16,11 @@ let water = {
 			// return string
 			return string;
 		}
+	},
+	// audio object
+	audio: {
+		sound: {},
+		music: {}
 	},
 	// game tick object
 	tick: {
@@ -31,14 +38,10 @@ async function setup() {
 	let data = requestData(water.save);
 
 	// init audio
-	water.audio = {
-		sound: {
-			drink: createAudio("assets/bloxy-cola.mp3")
-		},
-		music: {
-			bgm: createAudio("assets/Sneaky%20Snitch.mp3")
-		}
-	};
+	water.audio.json = await loadJSON("assets/audio.json");
+	water.audio.sound.drink = new Audio(water.audio.json.sound.drink[water.season]);
+	water.audio.music.bgm = new Audio(water.audio.json.music.bgm[water.season]);
+	water.audio.music.bgm.loop = true;
 
 	// init images
 	water.image = {
@@ -256,7 +259,8 @@ function initGame(method) {
 	saveCookie(water.save, encodeData(data));
 
 	// reset water drinking sound
-	water.audio.sound.drink.stop();
+	water.audio.sound.drink.pause();
+	water.audio.sound.drink.currentTime = 0;
 
 	// attempt BGM playback
 	testBgmPlayback();
@@ -272,7 +276,7 @@ function gameClicked() {
 		// do the following if water drinking cooldown is up
 
 		// play sound if true
-		water.audio.sound.drink.time(0);
+		water.audio.sound.drink.currentTime = 0;
 		water.audio.sound.drink.play();
 
 		// set cooldown
@@ -294,7 +298,7 @@ function testBgmPlayback() {
 	// execute if music playback enabled
 	if (document.getElementById("bgm").checked) {
 		// play BGM
-		water.audio.music.bgm.loop();
+		water.audio.music.bgm.play();
 
 		// update bgm state
 		data.bgmEnabled || (data.bgmEnabled = true);
@@ -302,7 +306,8 @@ function testBgmPlayback() {
 	// execute if music playback disabled
 	else {
 		// stop BGM
-		water.audio.music.bgm.stop();
+		water.audio.music.bgm.pause();
+		water.audio.music.bgm.currentTime = 0;
 
 		// update bgm state
 		data.bgmEnabled && (data.bgmEnabled = false);
@@ -326,7 +331,7 @@ function changeVolume(type, volume) {
 
 	// change volume of each audio element of the specified type
 	for (let i in water.audio[type])
-		water.audio[type][i].volume(volume);
+		water.audio[type][i].volume = volume;
 
 	// request save data
 	let data = requestData(water.save);

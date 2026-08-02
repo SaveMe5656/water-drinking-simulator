@@ -74,7 +74,7 @@ art by and inspiration thanks to *@motdab*
 ### v1.5.1
   * fix page theme selector being blank
   * remove "debug" from version number
-    - unintentional carry-over from the [dev. version](../?debug) (you can check it out if you want **:D**)
+    - unintentional carry-over from the [dev. version](./?debug) (you can check it out if you want **:D**)
 
 ### v1.5.0
   * add page theming

@@ -42,34 +42,13 @@ int bar[3] = {1, 2, 3};
 uint8_t foo_isIdenticalTo_bar = (sizeof(foo) == sizeof(bar) && memcmp(foo, bar, sizeof(foo)) == 0);
 ```
 
-IBM437 character table
-```txt
-   0 1 2 3 4 5 6 7 8 9 A B C D E F
-
-0    ☺ ☻ ♥ ♦ ♣ ♠ • ◘ ○ ◙ ♂ ♀ ♪ ♬ ☼
-1  ▶ ◀ ↕ ‼ ¶ § ▬ ↨ ↑ ↓ → ← ⌙ ↔ ▲ ▼
-2    ! " # $ % & ' ( ) * + , - . /
-3  0 1 2 3 4 5 6 7 8 9 : ; < = > ?
-4  @ A B C D E F G H I J K L M N O
-5  P Q R S T U V W X Y Z [ \ ] ^ _
-6  ` a b c d e f g h i j k l m n o
-7  p q r s t u v w x y z { | } ~ ⌂
-
-8  Ç ü é â ä à å ç ê ë è ï î ì Ä Å
-9  É æ Æ ô ö ò û ù ÿ Ö Ü ¢ £ ¥ ₧ ƒ
-A  á í ó ú ñ Ñ ª º ¿ ⌐ ¬ ½ ¼ ¡ « »
-B  ░ ▒ ▓ │ ┤ ╡ ╢ ╖ ╕ ╣ ║ ╗ ╝ ╜ ╛ ┐
-C  └ ┴ ┬ ├ ─ ┼ ╞ ╟ ╚ ╔ ╩ ╦ ╠ ═ ╬ ╧
-D  ╨ ╤ ╥ ╙ ╘ ╒ ╓ ╫ ╪ ┘ ┌ █ ▄ ▌ ▐ ▀
-E  α β Γ π Σ σ μ γ Φ θ Ω δ ∞ ∅ ∈ ∩
-F  ≡ ± ≥ ≤ ⌠ ⌡ ÷ ≈ ° ∙ ⋅ √ ⁿ ² ∎  
-```
-
 ---
 
 game should clock at 10 ticks/second
 score increments once per tick
 hydration decrements once per 15 ticks; actual hydration is raw hydration divided by 15
+saving should every 60 sec (600 ticks)
+
 */
 
 #define TICK_RATE 10
@@ -104,9 +83,10 @@ int main()
   // set global palette
   gfx_SetPalette(wds_palette, sizeof_wds_palette, 0);
 
-  // setup gametick limiter
-  clock_t tick = clock();
-  clock_t now;
+  // init gametick limiter
+  clock_t clock_now,
+      clock_tick_offset = 0,
+      clock_tick = clock();
 
   // begin loop
   do
@@ -317,12 +297,13 @@ int main()
     // wait to finish tick
     do
     {
-      now = clock();
+      clock_now = clock();
       // msleep(1); // delay to possibly save battery; requires <sys/timers.h>
-    } while ((now - tick) < (CLOCKS_PER_SEC / TICK_RATE));
+    } while ((clock_now - clock_tick - clock_tick_offset) < (CLOCKS_PER_SEC / TICK_RATE));
 
-    // update variable for gametick limiter
-    tick = now;
+    // update variables for gametick limiter
+    clock_tick_offset = (CLOCKS_PER_SEC / TICK_RATE) - (clock_now - clock_tick - clock_tick_offset);
+    clock_tick = clock_now;
   }
   // continue looping until [clear] pressed
   while (key != sk_Clear);

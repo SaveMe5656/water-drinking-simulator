@@ -1,20 +1,26 @@
+// standard libraries
 #include <stdio.h>
 // #include <stdlib.h> // unknown if needed
 #include <stdint.h> // included by <graphx.h>, <fontlibc.h>, <ti/getcsc.h>, "data.h"
 // #include <stdbool.h> // included by "data.h"; unknown if needed
+#include <time.h>
 
+// graphics libraries
 #include <graphx.h>
 #include "gfx/gfx.h"
 
+// font libraries
 #include <fontlibc.h>
 #include "fonts/calc1252.h"
 
+// other TI libraries
 #include <compression.h>
 #include <ti/getcsc.h>
+// #include <sys/timers.h> // unknown if needed
 
+// custom libraries
 #include "data.h"
 #include "draw.h"
-#include "text.h"
 
 /*
 
@@ -59,7 +65,14 @@ E  α β Γ π Σ σ μ γ Φ θ Ω δ ∞ ∅ ∈ ∩
 F  ≡ ± ≥ ≤ ⌠ ⌡ ÷ ≈ ° ∙ ⋅ √ ⁿ ² ∎  
 ```
 
+---
+
+game should clock at 10 ticks/second
+score increments once per tick
+hydration decrements once per 15 ticks; actual hydration is raw hydration divided by 15
 */
+
+#define TICK_RATE 10
 
 int main()
 {
@@ -82,14 +95,18 @@ int main()
   fontlib_SetFont(fontlib_GetFontByIndex(text_font, text_style), 0);
 
   // set text drawing properties
-  // fontlib_SetTransparency(true);
-  fontlib_SetColors(0, 1);
+  fontlib_SetColors(1, 0);
+  fontlib_SetTransparency(true);
 
   // begin drawing
   wds_beginDraw();
 
   // set global palette
   gfx_SetPalette(wds_palette, sizeof_wds_palette, 0);
+
+  // setup gametick limiter
+  clock_t tick = clock();
+  clock_t now;
 
   // begin loop
   do
@@ -101,14 +118,9 @@ int main()
       // test scene value
       switch (3 & bg_scene)
       {
-        // idle if 0
-      case 0:
-        zx7_Decompress(gfx_vbuffer, waterd2_compressed);
-        break;
-
-        // drinking if 1
-      case 1:
-        zx7_Decompress(gfx_vbuffer, waterd33_compressed);
+        // overhydrate (drown) if 3 (if otherwise)
+      case 3:
+        gfx_FillScreen(6);
         break;
 
         // dehydrate if 2
@@ -116,9 +128,14 @@ int main()
         gfx_FillScreen(5);
         break;
 
-        // overhydrate (drown) if 3 (if otherwise)
+        // drinking if 1
+      case 1:
+        zx7_Decompress(gfx_vbuffer, waterd33_compressed);
+        break;
+
+        // idle if 0
       default:
-        gfx_FillScreen(6);
+        zx7_Decompress(gfx_vbuffer, waterd2_compressed);
         break;
       }
 
@@ -296,6 +313,16 @@ int main()
       data_flag = 0;
       break;
     }
+
+    // wait to finish tick
+    do
+    {
+      now = clock();
+      // msleep(1); // delay to possibly save battery; requires <sys/timers.h>
+    } while ((now - tick) < (CLOCKS_PER_SEC / TICK_RATE));
+
+    // update variable for gametick limiter
+    tick = now;
   }
   // continue looping until [clear] pressed
   while (key != sk_Clear);

@@ -40,21 +40,27 @@ void wds_openData(char **dataPtr)
   // store allocated memory pointer to data pointer
   *dataPtr = data;
 
-  // update data with new data sample
+  // prepare new data in case none can be loaded
+  // setup new data sample
   for (uint8_t i = 0; i < WDS_DATA_SIZE; i++)
     data[i] = WDS_DATA_SAMPLE[i];
-
   // copy current data version to data sample
   wds_encode(&WDS_DATA_VERSION, 1, &data, 0);
 
+  // attempt loading AppVar data
   // attempt open AppVar
   uint8_t data_AppVar = ti_Open(WDS_DATA_APPVAR, "r+"); // data AppVar handle
-
   // execute if open AppVar successful
   if (data_AppVar)
   {
     // read AppVar and overwrite data string
     ti_Read(data, WDS_DATA_SIZE, 1, data_AppVar);
+
+    // move AppVar back to archive
+    ti_SetArchiveStatus(true, data_AppVar);
+
+    // close data AppVar
+    ti_Close(data_AppVar);
   }
   // execute if open AppVar failed
   else
@@ -64,16 +70,6 @@ void wds_openData(char **dataPtr)
 
     // write data to AppVar
     ti_Write(data, WDS_DATA_SIZE, 1, data_AppVar);
-  }
-
-  // execute if open AppVar successful
-  if (data_AppVar)
-  {
-    // move AppVar to archive
-    ti_SetArchiveStatus(true, data_AppVar);
-
-    // close data AppVar
-    ti_Close(data_AppVar);
   }
 }
 

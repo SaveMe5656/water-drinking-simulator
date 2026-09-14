@@ -5,4 +5,6 @@ void wds_beginDraw();
 void wds_drawFrame();
 void wds_endDraw();
 
+char *wds_getFont(char *fontName);
+
 #endif

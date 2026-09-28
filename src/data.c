@@ -8,7 +8,7 @@
 /*
 ### save data structure (v0):
 ```c
-uint8_t data[] = "wds:1332:010002EE000F5508F8";
+uint8_t data[] = "wds:1332:010002EE000F55047C";
 ```
 list of values prefixed by an index and null terminator
   data version	(uint8_t)
@@ -40,8 +40,8 @@ void wds_openData(char **dataPtr)
   // store allocated memory pointer to data pointer
   *dataPtr = data;
 
-  // prepare new data in case none can be loaded
-  // setup new data sample
+  // init allocated memory with new data in case no save data can be loaded
+  // setup new data from sample
   for (uint8_t i = 0; i < WDS_DATA_SIZE; i++)
     data[i] = WDS_DATA_SAMPLE[i];
   // copy current data version to data sample
@@ -58,9 +58,6 @@ void wds_openData(char **dataPtr)
 
     // move AppVar back to archive
     ti_SetArchiveStatus(true, data_AppVar);
-
-    // close data AppVar
-    ti_Close(data_AppVar);
   }
   // execute if open AppVar failed
   else
@@ -71,9 +68,12 @@ void wds_openData(char **dataPtr)
     // write data to AppVar
     ti_Write(data, WDS_DATA_SIZE, 1, data_AppVar);
   }
+  // close data AppVar
+  if (data_AppVar)
+    ti_Close(data_AppVar);
 }
 
-void wds_closeData(const char *data)
+void wds_saveData(const char *data)
 {
   // attempt open AppVar
   uint8_t data_AppVar = ti_Open(WDS_DATA_APPVAR, "w"); /// data AppVar handle
@@ -90,6 +90,12 @@ void wds_closeData(const char *data)
     // close data AppVar
     ti_Close(data_AppVar);
   }
+}
+
+void wds_closeData(const char *data)
+{
+  // save data
+  wds_saveData(data);
 
   // free allocated memory
   free(data);

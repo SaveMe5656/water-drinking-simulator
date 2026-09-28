@@ -12,6 +12,7 @@ extern const int WDS_DATA_VERSION;                    /// current data version
 #define WDS_DATA_SAMPLE "wds:1332:000000000000000000" /// data sample
 
 void wds_openData(char **dataPtr);
+void wds_saveData(const char *data);
 void wds_closeData(const char *data);
 uint64_t wds_decodeValue(const char *data, wds_index_t index);
 void wds_encode(const void *valuePtr, size_t size, char **dataPtr, wds_index_t index);

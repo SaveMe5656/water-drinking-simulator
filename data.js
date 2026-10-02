@@ -80,7 +80,7 @@ function repairData(noReload) {
 
 	// (v1.6.1)
 	// init save data
-	data.save = data.autosave || {};
+	data.save = data.autosave || data.save || {};
 	// move existing autosave data to be standard save data
 	if (data.autosave) {
 		delete data.autosave;

@@ -3,7 +3,12 @@ art by and inspiration thanks to *@motdab*
 
 
 ## changelog:
-### v1.6.7 (current)
+### v1.6.8 (current)
+  * fix data fixer discarding saved non-legacy game data
+  * add dev. offline compatability feature
+  * more preparations for next version &#x1f440;
+
+### v1.6.7
   * rework audio handling
     - switch from p5.js `createAudio()` to standard Web API `Audio()` constructor
     - list asset locations in JSON

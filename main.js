@@ -1,7 +1,7 @@
 // object to store/get game values
 let water = {
 	// game version
-	version: "v1.6.7",
+	version: "v1.6.8",
 	// temporary season value
 	season: "default",
 	// score object

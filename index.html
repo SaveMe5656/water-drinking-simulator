@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-	<script src="https://cdn.jsdelivr.net/npm/p5@latest/lib/p5.js"></script>
+	<script id="p5.js" src="https://cdn.jsdelivr.net/npm/p5@latest/lib/p5.js"></script>
 	<script src="/assets/cookies.js"></script>
 
 	<script src="/assets/load.js"></script>
@@ -170,7 +170,8 @@
 	<script src="theme.js"></script>
 
 	<script id="debug">
-		(new Function(atob("ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoImRlYnVnIikucmVtb3ZlKCksbmV3IFVSTFNlYXJjaFBhcmFtcyhsb2NhdGlvbi5zZWFyY2gpLmhhcygiZGVidWciKSYmKGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJjb25maWciKS5pbm5lckhUTUwrPWA8YnI+PGRpdiBpZD0iZGVidWciPjxzdHJvbmc+ZGVidWc6PC9zdHJvbmc+PGJyPjxzcGFuPmxvZzo8L3NwYW4+IDxhIGhyZWY9ImphdmFzY3JpcHQ6Y29uc29sZS5kZWJ1Zyhkb2N1bWVudC5jb29raWUpIj5jb29raWVzPC9hPiA8YSBocmVmPSJqYXZhc2NyaXB0OmNvbnNvbGUuZGVidWcocmVxdWVzdERhdGEod2F0ZXIuc2F2ZSkpIj5kZWNvZGVkIHNhdmUgZGF0YTwvYT4gPGEgaHJlZj0iamF2YXNjcmlwdDpjb25zb2xlLmRlYnVnKHdhdGVyLmxldmVsKSI+dHJ1ZSBoeWRyYXRpb248L2E+IDxhIGhyZWY9ImphdmFzY3JpcHQ6Y29uc29sZS5kZWJ1Zyh3YXRlcikiPmdhbWUgb2JqZWN0PC9hPjxicj48c3Bhbj5leGVjdXRlOjwvc3Bhbj4gPGEgaHJlZj0iamF2YXNjcmlwdDpub0xvb3AoKSI+bm9Mb29wKCk8L2E+IDxhIGhyZWY9ImphdmFzY3JpcHQ6bG9vcCgpIj5sb29wKCk8L2E+IDxhIGhyZWY9ImphdmFzY3JpcHQ6ZHJhdygpIj5kcmF3KCk8L2E+IDxhIGhyZWY9ImphdmFzY3JpcHQ6ZGVsZXRlQ29va2llKHdhdGVyLnNhdmUpIj5kZWxldGUgZ2FtZSBkYXRhPC9hPjwvZGl2PmApOw==")))()
+		(new Function(atob("ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoImRlYnVnIikucmVtb3ZlKCksbmV3IFVSTFNlYXJjaFBhcmFtcyhsb2NhdGlvbi5zZWFyY2gpLmhhcygiZGVidWciKSYmKGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJjb25maWciKS5pbm5lckhUTUwrPWA8YnI+PGRpdiBpZD0iZGVidWciPjxzdHJvbmc+ZGVidWc6PC9zdHJvbmc+PGJyPjxzcGFuPmxvZzo8L3NwYW4+IDxhIGhyZWY9ImphdmFzY3JpcHQ6Y29uc29sZS5kZWJ1Zyhkb2N1bWVudC5jb29raWUpIj5jb29raWVzPC9hPiA8YSBocmVmPSJqYXZhc2NyaXB0OmNvbnNvbGUuZGVidWcocmVxdWVzdERhdGEod2F0ZXIuc2F2ZSkpIj5kZWNvZGVkIHNhdmUgZGF0YTwvYT4gPGEgaHJlZj0iamF2YXNjcmlwdDpjb25zb2xlLmRlYnVnKHdhdGVyLmxldmVsKSI+dHJ1ZSBoeWRyYXRpb248L2E+IDxhIGhyZWY9ImphdmFzY3JpcHQ6Y29uc29sZS5kZWJ1Zyh3YXRlcikiPmdhbWUgb2JqZWN0PC9hPjxicj48c3Bhbj5leGVjdXRlOjwvc3Bhbj4gPGEgaHJlZj0iamF2YXNjcmlwdDpub0xvb3AoKSI+bm9Mb29wKCk8L2E+IDxhIGhyZWY9ImphdmFzY3JpcHQ6bG9vcCgpIj5sb29wKCk8L2E+IDxhIGhyZWY9ImphdmFzY3JpcHQ6ZHJhdygpIj5kcmF3KCk8L2E+IDxhIGhyZWY9ImphdmFzY3JpcHQ6ZGVsZXRlQ29va2llKHdhdGVyLnNhdmUpIj5kZWxldGUgZ2FtZSBkYXRhPC9hPjwvZGl2PmApOw==")))();
+		(async () => { let p5js = document.getElementById("p5.js"); (await fetch(p5js.src)).ok || (p5js.src = "/p5.js") })();
 	</script>
 </body>
 

@@ -11,4 +11,4 @@ mrsans-07.bin: mrsans-07-normal.convfont mrsans-07-bold.convfont
 	mrsans-07.bin
 
 MrSans.8xv: mrsans-07.bin
-	./convhex -a -v -n wdsFont mrsans-07.bin MrSans.8xv
+	./convhex -a -v -n MrSans mrsans-07.bin MrSans.8xv

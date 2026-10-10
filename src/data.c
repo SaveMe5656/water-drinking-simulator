@@ -5,28 +5,7 @@
 
 #include <fileioc.h>
 
-/*
-### save data structure (v0):
-```c
-uint8_t data[] = "wds:1332:010002EE000F55047C";
-```
-list of values prefixed by an index and null terminator
-  data version	(uint8_t)
-  highscore   	(uint24_t)
-  score       	(uint24_t)
-  hydration   	(uint16_t)
-
----
-
-### 4-bit to ASCII:
-```c
-num += 48 // 0x30
-if (num > 58) // num >= 0x0A + 0x30
-  num += 7;
-```
-*/
-
-const int WDS_DATA_VERSION = 1;
+const uint8_t WDS_DATA_VERSION = 0;
 
 char wds_data_encodePart(uint8_t decodedChar);
 uint8_t wds_data_decodePart(char encodedChar);

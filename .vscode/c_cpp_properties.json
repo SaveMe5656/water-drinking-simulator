@@ -3,15 +3,13 @@
         {
             "name": "Linux",
             "includePath": [
-                "/home/saveme5656/CEdev/include",
+                "~/CEdev/include",
                 "${workspaceFolder}"
             ],
             "defines": [],
-            "compilerPath": "/home/saveme5656/CEdev/bin/ez80-clang",
+            "compilerPath": "~/CEdev/bin/ez80-clang",
             "cStandard": "c17",
-            "cppStandard": "gnu++17",
-            "intelliSenseMode": "linux-gcc-x64",
-            "configurationProvider": "ms-vscode.makefile-tools"
+            "cppStandard": "gnu++17"
         }
     ],
     "version": 4

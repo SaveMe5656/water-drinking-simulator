@@ -1,3 +1,4 @@
+/* libraries */
 // standard libraries
 #include <stdio.h>
 // #include <stdlib.h> // unknown if needed
@@ -21,28 +22,37 @@
 // custom libraries
 #include "data.h"
 #include "draw.h"
+/* --------- */
 
-// macros
-#define TICK_RATE 10      // amount of ticks/second
-#define COOLDOWN_START 23 // 10 ticks/sec * 2.28 seconds ~= 23 tick cooldown period
+/* macros */
+#define TICK_RATE 10        // amount of ticks/second
+#define COOLDOWN_START 23   // cooldown duration in ticks (10 ticks/sec * 2.28 seconds ~= 23 tick cooldown period)
+#define HYDRATION_FACTOR 15 // factor between real hydration to get raw hydration value (real == raw / 15`)
 
-/*
-  special boolean values (one bit per value)
-  | bit |  key  | property |
-  | --- | ----- | -------- |
-  | 1   | `1`   | redraw   |
-  | 2   | `2`   | print    |
-  | 3   | `4`   |          |
-  | 4   | `8`   |          |
-  | 5   | `16`  |          |
-  | 6   | `32`  |          |
-  | 7   | `64`  |          |
-  | 8   | `128` |          |
-*/
+#define HYDRATION_BAR_WIDTH 102
+#define HYDRATION_BAR_HEIGHT 7
+/* ------ */
+
+/* global vars */
+// special boolean values (one bit per value)
+// | bit |  key  | property |
+// | --- | ----- | -------- |
+// | 1   | `1`   | drinking |
+// | 2   | `2`   | print    |
+// | 3   | `4`   |          |
+// | 4   | `8`   |          |
+// | 5   | `16`  |          |
+// | 6   | `32`  |          |
+// | 7   | `64`  |          |
+// | 8   | `128` |          |
 uint8_t flags = 1;
 
-// function defs
-void wds_redraw(uint8_t state);
+gfx_sprite_t *score_bg;     // background behind header text
+gfx_sprite_t *hydration_bg; // background behind hydration bar
+/* ----------- */
+
+// function inits
+void drawBg(uint8_t state);
 
 // main function
 int main()
@@ -51,6 +61,7 @@ int main()
   char *data;
   wds_openData(&data);
 
+  /* text properties */
   // get Mr. Sans font (modified Dr. Sans by DrDnar)
   char *text_font = wds_getFont("Mr. Sans");
 
@@ -60,6 +71,7 @@ int main()
   // set text drawing properties
   fontlib_SetColors(1, 0);
   fontlib_SetTransparency(true);
+  /* --------------- */
 
   // begin drawing
   wds_beginDraw();
@@ -67,14 +79,24 @@ int main()
   // set global palette
   gfx_SetPalette(wds_palette, sizeof_wds_palette, 0);
 
-  // init vars
-  unsigned score;               // raw score (real * 10)
-  short hydration;              // raw hydration (real * 15)
-  uint8_t key = os_GetCSC();    // key handler
-  uint8_t saveTimer = 0;        // tick incrementer for save timer (save once every 600 ticks)
+  /* init vars */
+  short hydration;                // raw hydration (real * 15)
+  unsigned score;                 // score
+  uint8_t saveTimer = 0;          // tick incrementer for save timer (save once every 600 ticks)
+  uint8_t hydration_cooldown = 0; // hydration cooldown
+  uint8_t key;                    // key handler
+
+  score_bg = gfx_MallocSprite(
+      /* GFX_LCD_WIDTH - 10 /* <- exceeds uint8_t! */ 255,
+      (2 * fontlib_GetCurrentFontHeight()) + fontlib_GetSpaceAbove() + fontlib_GetSpaceBelow());
+  hydration_bg = gfx_MallocSprite(102, 7);
+
   clock_t clock_tick = clock(), // gametick limiter; last clock tick
       clock_now;                // gametick limiter; current clock tick
-  uint8_t cooldown = 0;         // hydration cooldown
+  /* --------- */
+
+  // temporary init hydration value
+  hydration = (short)(50.5 * HYDRATION_FACTOR);
 
   // begin loop
   do
@@ -82,16 +104,20 @@ int main()
     // properly hydrated
     if (1)
     {
+      // store key
+      key = os_GetCSC();
+
+      /* game functions */
       // hydration
-      if (!cooldown)
+      if (!hydration_cooldown)
       {
-        // test to redraw scene
+        // test to redraw background
         if (flags & 1)
         {
           // set flag
           flags &= ~1;
-          // redraw scene
-          wds_redraw(0);
+          // redraw
+          drawBg(0);
         }
 
         // hydrate on keypress
@@ -99,23 +125,43 @@ int main()
         {
         case sk_Enter:
         case sk_2nd:
-          cooldown = COOLDOWN_START;
+          // update hydration value
+          hydration += 30 * HYDRATION_FACTOR;
+          // init hydration cooldown
+          hydration_cooldown = COOLDOWN_START;
         }
       }
       else
       {
         // decrement cooldown
-        cooldown--;
+        hydration_cooldown--;
 
-        // test to redraw scene
+        // test to redraw background
         if (!(flags & 1))
         {
           // set flag
           flags |= 1;
-          // redraw scene
-          wds_redraw(1);
+          // redraw
+          drawBg(1);
         }
       }
+
+      // test to update hydration status
+      if ((hydration / HYDRATION_FACTOR) * HYDRATION_FACTOR == hydration || flags & 2)
+      {
+        // temporary hydration display
+        gfx_Sprite(score_bg, 5, 5);                        // partial redraw
+        fontlib_SetCursorPosition(5, 5);                   // position text cursor
+        fontlib_DrawString("hydration: ");                 // output label
+        fontlib_DrawUInt(hydration / HYDRATION_FACTOR, 1); // output value
+        fontlib_DrawGlyph('%');                            // output value type
+        // set draw flag
+        flags |= 2;
+      }
+
+      // decrement hydration
+      hydration--;
+      /* -------------- */
 
       // test to print screen
       if (flags & 2)
@@ -125,6 +171,7 @@ int main()
         wds_drawFrame();
       }
 
+      /* rate limiter */
       // wait to finish tick
       do
       {
@@ -134,9 +181,7 @@ int main()
 
       // update vars for gametick limiter
       clock_tick = clock_now;
-
-      // store key
-      key = os_GetCSC();
+      /* ------------ */
     }
     // improperly hydrated
     else
@@ -156,10 +201,13 @@ int main()
   return 0;
 }
 
-void wds_redraw(uint8_t state)
+void drawBg(uint8_t state)
 {
   // draw background
   zx7_Decompress(gfx_vbuffer, state ? waterd33_compressed : waterd2_compressed);
+
+  // update partial redraw buffers
+  gfx_GetSprite(score_bg, 5, 5);
 
   // set draw flag
   flags |= 2;

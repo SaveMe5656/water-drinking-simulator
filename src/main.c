@@ -26,6 +26,8 @@
 #define COOLDOWN_START 23   // cooldown duration in ticks (10 ticks/sec * 2.28 seconds ~= 23 tick cooldown period)
 #define HYDRATION_FACTOR 15 // factor between real hydration to get raw hydration value (real == raw / 15`)
 
+#define TEXT_OFFSET 5 // offset from screen edges to draw text at
+
 #define HYDRATION_BAR_WIDTH 102
 #define HYDRATION_BAR_HEIGHT 7
 /* ------ */
@@ -44,12 +46,14 @@
 // | 8   | `128` |          |
 uint8_t flags = 1;
 
-gfx_sprite_t *score_bg;     // background behind header text
-gfx_sprite_t *hydration_bg; // background behind hydration bar
-uint8_t hydration_bg_ypos;  // y-position to redraw background behind hydration bar
+short score_xpos;           // x-position to draw score value
+gfx_sprite_t *score_bg;     // background behind score value
+uint8_t hydration_xpos;     // x-position to draw hydration value
+uint8_t hydration_ypos;     // y-position to draw hydration value
+gfx_sprite_t *hydration_bg; // background behind hydration value
 /* ----------- */
 
-// function inits
+// function declarations
 void drawBg(uint8_t state);
 
 // main function
@@ -69,7 +73,7 @@ int main()
   // set text drawing properties
   fontlib_SetColors(1, 0);
   fontlib_SetTransparency(true);
-  fontlib_SetWindow(5, 5, GFX_LCD_WIDTH - 5, GFX_LCD_HEIGHT - 5);
+  fontlib_SetWindow(TEXT_OFFSET, TEXT_OFFSET, GFX_LCD_WIDTH - TEXT_OFFSET, GFX_LCD_HEIGHT - TEXT_OFFSET);
   /* --------------- */
 
   // begin drawing
@@ -85,15 +89,13 @@ int main()
   uint8_t hydration_cooldown = 0; // hydration cooldown
   uint8_t key;                    // key handler
 
-  uint8_t text_font_height = fontlib_GetCurrentFontHeight();
+  uint8_t text_font_height = fontlib_GetCurrentFontHeight(); // font height
 
-  score_bg = gfx_MallocSprite(
-      /* GFX_LCD_WIDTH - 10 /* <- exceeds uint8_t! */ ~0 /* <- just forcing the max */,
-      text_font_height);
-  hydration_bg = gfx_MallocSprite(
-      102,
-      text_font_height + fontlib_GetSpaceBelow() + HYDRATION_BAR_HEIGHT);
-  hydration_bg_ypos = GFX_LCD_HEIGHT - hydration_bg->height - 5;
+  score_xpos = TEXT_OFFSET + fontlib_GetStringWidth("score: ");
+  score_bg = gfx_MallocSprite(0x7f, text_font_height);
+  hydration_xpos = TEXT_OFFSET + text_font_height + fontlib_GetStringWidth("hydration: ");
+  hydration_ypos = GFX_LCD_HEIGHT - (TEXT_OFFSET + text_font_height + fontlib_GetSpaceBelow() + HYDRATION_BAR_HEIGHT);
+  hydration_bg = gfx_MallocSprite(HYDRATION_BAR_WIDTH - hydration_ypos + TEXT_OFFSET, text_font_height);
 
   clock_t clock_tick = clock(), // gametick limiter; last clock tick
       clock_now;                // gametick limiter; current clock tick
@@ -152,27 +154,34 @@ int main()
       }
 
       // print score value
-      gfx_Sprite(score_bg, 5, 5);      // partial redraw
-      fontlib_SetCursorPosition(5, 5); // position text cursor
-      fontlib_DrawString("score: ");   // label
-      fontlib_DrawUInt(score / 10, 1); // pre-point value
-      fontlib_DrawGlyph('.');          // decimal point
-      fontlib_DrawUInt(score % 10, 1); // post-point value
+      gfx_Sprite(score_bg, score_xpos, TEXT_OFFSET);      // partial redraw
+      fontlib_SetCursorPosition(score_xpos, TEXT_OFFSET); // position text cursor
+      fontlib_DrawUInt(score / 10, 1);                    // pre-point value
+      fontlib_DrawGlyph('.');                             // decimal point
+      fontlib_DrawUInt(score % 10, 1);                    // post-point value
 
       // print on hydration update
-      if ((hydration / HYDRATION_FACTOR) * HYDRATION_FACTOR == hydration || flags & 2)
+      if (((hydration + (HYDRATION_FACTOR / 2)) / HYDRATION_FACTOR) * HYDRATION_FACTOR == hydration || flags & 2)
       {
         // text value
-        gfx_Sprite(hydration_bg, 5, hydration_bg_ypos);                     // partial redraw
-        fontlib_SetCursorPosition(5 + text_font_height, hydration_bg_ypos); // position text cursor (not centered; too lazy to figure out how to do that efficiently)
-        fontlib_DrawString("hydration: ");                                  // output label
-        fontlib_DrawUInt(hydration / HYDRATION_FACTOR, 1);                  // value
-        fontlib_DrawGlyph('%');                                             // percent sign
+        gfx_Sprite(hydration_bg, hydration_xpos, hydration_ypos);  // partial redraw
+        fontlib_SetCursorPosition(hydration_xpos, hydration_ypos); // position text cursor (not centered; too lazy to figure out how to do that efficiently)
+        fontlib_DrawUInt(hydration / HYDRATION_FACTOR, 1);         // value
+        fontlib_DrawGlyph('%');                                    // percent sign
       }
 
-      // update flags after redraw
+      // resolve redraw
       if (flags & 2)
+      {
+        // game value labels
+        fontlib_SetCursorPosition(TEXT_OFFSET, TEXT_OFFSET);
+        fontlib_DrawString("score: ");
+        fontlib_SetCursorPosition(TEXT_OFFSET + text_font_height, hydration_ypos);
+        fontlib_DrawString("hydration: ");
+
+        // update flags
         flags &= ~2;
+      }
 
       // increment/decrement
       hydration--;
@@ -218,8 +227,8 @@ void drawBg(uint8_t state)
   zx7_Decompress(gfx_vbuffer, state ? waterd33_compressed : waterd2_compressed);
 
   // update partial redraw buffers
-  gfx_GetSprite(score_bg, 5, 5);
-  gfx_GetSprite(hydration_bg, 5, hydration_bg_ypos);
+  gfx_GetSprite(score_bg, TEXT_OFFSET, TEXT_OFFSET);
+  gfx_GetSprite(hydration_bg, TEXT_OFFSET, hydration_ypos);
 
   // set redraw flag
   flags |= 2;

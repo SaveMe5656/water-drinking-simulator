@@ -63,8 +63,8 @@ int main()
   wds_openData(&data);
 
   /* text properties */
-  // get Mr. Sans font (modified Dr. Sans by DrDnar)
-  char *text_font = wds_getFont("Mr. Sans");
+  // get font
+  char *text_font = wds_getFont("Dr. Aller");
 
   // set font
   fontlib_SetFont(fontlib_GetFontByIndex(text_font, 0), 0); // 0: default | 1: bold

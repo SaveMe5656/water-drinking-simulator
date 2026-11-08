@@ -1,27 +1,24 @@
 /* libraries */
 // standard libraries
-#include <stdio.h>
-// #include <stdlib.h> // unknown if needed
-#include <stdint.h> // also included by <graphx.h>, <fontlibc.h>, <ti/getcsc.h>, "data.h"
-// #include <stdbool.h> // included by "data.h"; unknown if needed here
-#include <time.h>
+#include <stdint.h> // good amount of vars using stdint types
+#include <time.h>   // rate limiter
 
 // graphics libraries
 #include <graphx.h>
-#include "gfx/gfx.h"
+#include "gfx/gfx.h" // graphics data
 
 // font libraries
 #include <fontlibc.h>
-#include "fonts/calc1252.h"
+// #include "fonts/calc1252.h" // companion library to font
 
 // other TI libraries
-#include <compression.h>
-#include <ti/getcsc.h> // might swap out for <keypadc.h> later on
-// #include <sys/timers.h> // unknown if needed
+#include <compression.h> // background decompression
+#include <ti/getcsc.h>   // keypress handling
+// #include <sys/timers.h> // rate limiter battery saver
 
 // custom libraries
-#include "data.h"
-#include "draw.h"
+#include "data.h" // wds save data handling
+#include "draw.h" // wds screen draw handling
 /* --------- */
 
 /* macros */
@@ -88,17 +85,14 @@ int main()
   uint8_t hydration_cooldown = 0; // hydration cooldown
   uint8_t key;                    // key handler
 
-  uint8_t text_font_height = fontlib_GetCurrentFontHeight(),
-          text_font_lineSpaceAbove = fontlib_GetSpaceAbove(),
-          text_font_lineSpaceBelow = fontlib_GetSpaceBelow();
-  uint8_t text_font_lineSpacing = text_font_lineSpaceAbove + text_font_lineSpaceBelow;
+  uint8_t text_font_height = fontlib_GetCurrentFontHeight();
 
   score_bg = gfx_MallocSprite(
       /* GFX_LCD_WIDTH - 10 /* <- exceeds uint8_t! */ ~0 /* <- just forcing the max */,
-      (2 * text_font_height) + text_font_lineSpacing);
+      text_font_height);
   hydration_bg = gfx_MallocSprite(
       102,
-      text_font_height + text_font_lineSpaceBelow + HYDRATION_BAR_HEIGHT);
+      text_font_height + fontlib_GetSpaceBelow() + HYDRATION_BAR_HEIGHT);
   hydration_bg_ypos = GFX_LCD_HEIGHT - hydration_bg->height - 5;
 
   clock_t clock_tick = clock(), // gametick limiter; last clock tick

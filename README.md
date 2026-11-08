@@ -19,7 +19,7 @@ releases are listed on [wds's release section](https://github.com/SaveMe5656/wat
 ## compiling
 make sure you have GNU `make`, the [CE C Toolchain](https://github.com/SaveMe5656/water-drinking-simulator/releases), and download or clone wdsCE's source code repository
 
-at the root of the repository, run `make gfx` and `make` to build the program. it'll be spit out in the `bin` directory with the extension `.8xp`
+at the root of the repository, run `make gfx` and `make` to build the executable. it'll be spit out in the `bin` directory as a TI `.8xp` program
 
 in `src/fonts`, run `make` to build the font. the `.8xv` AppVar will appear in the same folder
 

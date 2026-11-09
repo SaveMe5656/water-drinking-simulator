@@ -14,6 +14,7 @@
 // other TI libraries
 #include <compression.h> // background decompression
 #include <ti/getcsc.h>   // keypress handling
+#include <ti/screen.h>   // error dialog
 // #include <sys/timers.h> // rate limiter battery saver
 
 // custom libraries
@@ -46,6 +47,8 @@
 // | 8   | `128` |          |
 uint8_t flags = 1;
 
+uint8_t key; // key handler
+
 short score_xpos;           // x-position to draw score value
 gfx_sprite_t *score_bg;     // background behind score value
 uint8_t hydration_xpos;     // x-position to draw hydration value
@@ -66,6 +69,22 @@ int main()
   /* text properties */
   // get font
   char *text_font = wds_getFont("Dr. Aller");
+  // return if font init fail
+  if (text_font == NULL)
+  {
+    // output error message
+    os_PutStrLine("Missing font AppVar!");
+    os_NewLine();
+    os_PutStrFull("Please send the AppVar to the calculator.");
+
+    // await keypress
+    do
+    {
+      key = os_GetCSC();
+    } while (!key);
+
+    return 1;
+  }
 
   // set font
   fontlib_SetFont(fontlib_GetFontByIndex(text_font, 0), 0); // 0: default | 1: bold
@@ -76,18 +95,11 @@ int main()
   fontlib_SetWindow(TEXT_OFFSET, TEXT_OFFSET, GFX_LCD_WIDTH - TEXT_OFFSET, GFX_LCD_HEIGHT - TEXT_OFFSET);
   /* --------------- */
 
-  // begin drawing
-  wds_beginDraw();
-
-  // set global palette
-  gfx_SetPalette(wds_palette, sizeof_wds_palette, 0);
-
   /* init vars */
   short hydration;                // raw hydration (real * 15)
   unsigned score;                 // score
   uint8_t saveTimer = 0;          // tick incrementer for save timer (save once every 600 ticks)
   uint8_t hydration_cooldown = 0; // hydration cooldown
-  uint8_t key;                    // key handler
 
   uint8_t text_font_height = fontlib_GetCurrentFontHeight(); // font height
 
@@ -104,6 +116,12 @@ int main()
   // temporary init hydration/score
   hydration = (short)(50.5 * HYDRATION_FACTOR);
   score = 0;
+
+  // begin drawing
+  wds_beginDraw();
+
+  // set global palette
+  gfx_SetPalette(wds_palette, sizeof_wds_palette, 0);
 
   // begin gameplay loop
   do
@@ -217,7 +235,6 @@ int main()
   // close data
   wds_closeData(data);
 
-  // end program
   return 0;
 }
 

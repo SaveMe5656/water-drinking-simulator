@@ -34,30 +34,41 @@
 /* ------ */
 
 /* global vars */
-// special boolean values (one bit per value)
-// | bit |  key  | property |
-// | --- | ----- | -------- |
-// | 1   | `1`   | drinking |
-// | 2   | `2`   | redraw   |
-// | 3   | `4`   |          |
-// | 4   | `8`   |          |
-// | 5   | `16`  |          |
-// | 6   | `32`  |          |
-// | 7   | `64`  |          |
-// | 8   | `128` |          |
+/**
+special boolean values (one bit per value)
+
+| bit |  key  | property        |
+| --- | ----- | --------------- |
+| 1   | `1`   | drinking        |
+| 2   | `2`   | redraw          |
+| 3   | `4`   | hydration state |
+| 4   | `8`   |        -        |
+| 5   | `16`  |        -        |
+| 6   | `32`  |        -        |
+| 7   | `64`  |        -        |
+| 8   | `128` |        -        |
+
+```c
+// retrieve
+bool abc = (flags & 4); // 3rd flag
+// overwrite
+flags |= 32; // enable 6th flag
+flags &= ~8; // disable 4th flag
+```
+*/
 uint8_t flags = 1;
 
 uint8_t key; // key handler
 
-short score_xpos;           // x-position to draw score value
+uint8_t score_xpos;         // x-position to draw score value
 gfx_sprite_t *score_bg;     // background behind score value
-uint8_t hydration_xpos;     // x-position to draw hydration value
-uint8_t hydration_ypos;     // y-position to draw hydration value
+uint8_t hydration_xpos,     // x-position to draw hydration value
+    hydration_ypos;         // y-position to draw hydration value
 gfx_sprite_t *hydration_bg; // background behind hydration value
 /* ----------- */
 
 // function declarations
-void drawBg(uint8_t state);
+void wds_drawBg(uint8_t state);
 
 // main function
 int main()
@@ -96,10 +107,11 @@ int main()
   /* --------------- */
 
   /* init vars */
-  short hydration;                // raw hydration (real * 15)
-  unsigned score;                 // score
-  uint8_t saveTimer = 0;          // tick incrementer for save timer (save once every 600 ticks)
+  unsigned hydration, // raw hydration (real * 15)
+      score;          // raw score (real * 10)
+
   uint8_t hydration_cooldown = 0; // hydration cooldown
+  uint8_t saveTimer = 0;          // tick incrementer for save timer (save once every 600 ticks)
 
   uint8_t text_font_height = fontlib_GetCurrentFontHeight(); // font height
 
@@ -114,7 +126,7 @@ int main()
   /* --------- */
 
   // temporary init hydration/score
-  hydration = (short)(50.5 * HYDRATION_FACTOR);
+  hydration = (unsigned)(50.5 * HYDRATION_FACTOR);
   score = 0;
 
   // begin drawing
@@ -142,7 +154,7 @@ int main()
           // set flag
           flags &= ~1;
           // redraw
-          drawBg(0);
+          wds_drawBg(0);
         }
 
         // hydrate on keypress
@@ -167,7 +179,7 @@ int main()
           // set flag
           flags |= 1;
           // redraw
-          drawBg(1);
+          wds_drawBg(1);
         }
       }
 
@@ -238,7 +250,7 @@ int main()
   return 0;
 }
 
-void drawBg(uint8_t state)
+void wds_drawBg(uint8_t state)
 {
   // draw background
   zx7_Decompress(gfx_vbuffer, state ? waterd33_compressed : waterd2_compressed);

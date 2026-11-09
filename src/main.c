@@ -29,6 +29,9 @@
 
 #define TEXT_OFFSET 5 // offset from screen edges to draw text at
 
+#define SCORE_LABEL "score: "         // gui label prefixing score value
+#define HYDRATION_LABEL "hydration: " // gui label prefixing hydration value
+
 #define HYDRATION_BAR_WIDTH 102
 #define HYDRATION_BAR_HEIGHT 7
 
@@ -117,11 +120,11 @@ int main()
 
   uint8_t text_font_height = fontlib_GetCurrentFontHeight(); // font height
 
-  score_xpos = TEXT_OFFSET + fontlib_GetStringWidth("score: ");
+  score_xpos = TEXT_OFFSET + fontlib_GetStringWidth(SCORE_LABEL);
   score_bg = gfx_MallocSprite(0x7f, text_font_height);
-  hydration_xpos = TEXT_OFFSET + text_font_height + fontlib_GetStringWidth("hydration: ");
+  hydration_xpos = TEXT_OFFSET + text_font_height + fontlib_GetStringWidth(HYDRATION_LABEL);
   hydration_ypos = GFX_LCD_HEIGHT - (TEXT_OFFSET + text_font_height + fontlib_GetSpaceBelow() + HYDRATION_BAR_HEIGHT);
-  hydration_bg = gfx_MallocSprite(HYDRATION_BAR_WIDTH - hydration_xpos + TEXT_OFFSET, text_font_height);
+  hydration_bg = gfx_MallocSprite(text_font_height * 4, text_font_height);
 
   clock_t clock_tick = clock(), // gametick limiter; last clock tick
       clock_now;                // gametick limiter; current clock tick
@@ -208,9 +211,9 @@ int main()
       {
         // game value labels
         fontlib_SetCursorPosition(TEXT_OFFSET, TEXT_OFFSET);
-        fontlib_DrawString("score: ");
+        fontlib_DrawString(SCORE_LABEL);
         fontlib_SetCursorPosition(TEXT_OFFSET + text_font_height, hydration_ypos);
-        fontlib_DrawString("hydration: ");
+        fontlib_DrawString(HYDRATION_LABEL);
 
         // update flags
         flags &= ~2;

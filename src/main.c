@@ -121,7 +121,7 @@ int main()
   score_bg = gfx_MallocSprite(0x7f, text_font_height);
   hydration_xpos = TEXT_OFFSET + text_font_height + fontlib_GetStringWidth("hydration: ");
   hydration_ypos = GFX_LCD_HEIGHT - (TEXT_OFFSET + text_font_height + fontlib_GetSpaceBelow() + HYDRATION_BAR_HEIGHT);
-  hydration_bg = gfx_MallocSprite(HYDRATION_BAR_WIDTH - hydration_ypos + TEXT_OFFSET, text_font_height);
+  hydration_bg = gfx_MallocSprite(HYDRATION_BAR_WIDTH - hydration_xpos + TEXT_OFFSET, text_font_height);
 
   clock_t clock_tick = clock(), // gametick limiter; last clock tick
       clock_now;                // gametick limiter; current clock tick
@@ -278,8 +278,8 @@ void wds_drawBg(uint8_t state)
     zx7_Decompress(gfx_vbuffer, (state & 1) ? waterd33_compressed : waterd2_compressed);
 
     // update partial redraw buffers
-    gfx_GetSprite(score_bg, TEXT_OFFSET, TEXT_OFFSET);
-    gfx_GetSprite(hydration_bg, TEXT_OFFSET, hydration_ypos);
+    gfx_GetSprite(score_bg, score_xpos, TEXT_OFFSET);
+    gfx_GetSprite(hydration_bg, hydration_xpos, hydration_ypos);
 
     // set redraw flag
     flags |= 2;

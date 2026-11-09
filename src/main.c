@@ -31,6 +31,8 @@
 
 #define HYDRATION_BAR_WIDTH 102
 #define HYDRATION_BAR_HEIGHT 7
+
+#define hydration_real (hydration / HYDRATION_FACTOR) // real hydration
 /* ------ */
 
 /* global vars */
@@ -138,13 +140,12 @@ int main()
   // begin gameplay loop
   do
   {
-    // properly hydrated
-    if (1)
-    {
-      // store key
-      key = os_GetCSC();
+    // store key
+    key = os_GetCSC();
 
-      /* game functions */
+    // properly hydrated
+    if (hydration <= 101 * HYDRATION_FACTOR)
+    { /* game functions */
       // hydration
       if (!hydration_cooldown)
       {
@@ -191,12 +192,14 @@ int main()
       fontlib_DrawUInt(score % 10, 1);                    // post-point value
 
       // print on hydration update
-      if (((hydration + (HYDRATION_FACTOR / 2)) / HYDRATION_FACTOR) * HYDRATION_FACTOR == hydration || flags & 2)
+      if (
+          hydration_real * HYDRATION_FACTOR == hydration - (HYDRATION_FACTOR - 1) // is real proportional to raw? (with respect for grace period)
+          || flags & 2)
       {
         // text value
         gfx_Sprite(hydration_bg, hydration_xpos, hydration_ypos);  // partial redraw
         fontlib_SetCursorPosition(hydration_xpos, hydration_ypos); // position text cursor (not centered; too lazy to figure out how to do that efficiently)
-        fontlib_DrawUInt(hydration / HYDRATION_FACTOR, 1);         // value
+        fontlib_DrawUInt(hydration_real, 1);                       // value
         fontlib_DrawGlyph('%');                                    // percent sign
       }
 
@@ -236,9 +239,26 @@ int main()
     // improperly hydrated
     else
     {
+      // set hydration flag for game over state
+      if (hydration & ~((unsigned)~0 >> 1))
+        flags &= ~4;
+      else
+        flags |= 4;
+
+      // draw game-over background
+      wds_drawBg(2 + !!(flags & 4));
+
+      // render
+      wds_drawFrame();
+
+      // await standard/exit keypress
+      do
+      {
+        key = os_GetCSC();
+      } while (key != sk_Enter && key != sk_2nd && key != sk_Clear);
     }
   }
-  // continue looping until [clear] pressed
+  // loop until exit keypress
   while (key != sk_Clear);
 
   // end drawing
@@ -252,13 +272,19 @@ int main()
 
 void wds_drawBg(uint8_t state)
 {
-  // draw background
-  zx7_Decompress(gfx_vbuffer, state ? waterd33_compressed : waterd2_compressed);
+  if (!(state & 2))
+  {
+    // decompress appropriate background asset
+    zx7_Decompress(gfx_vbuffer, (state & 1) ? waterd33_compressed : waterd2_compressed);
 
-  // update partial redraw buffers
-  gfx_GetSprite(score_bg, TEXT_OFFSET, TEXT_OFFSET);
-  gfx_GetSprite(hydration_bg, TEXT_OFFSET, hydration_ypos);
+    // update partial redraw buffers
+    gfx_GetSprite(score_bg, TEXT_OFFSET, TEXT_OFFSET);
+    gfx_GetSprite(hydration_bg, TEXT_OFFSET, hydration_ypos);
 
-  // set redraw flag
-  flags |= 2;
+    // set redraw flag
+    flags |= 2;
+  }
+  else
+    // fill background with appropriate color
+    gfx_FillScreen(5 + (state & 1));
 }

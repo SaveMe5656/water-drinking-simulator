@@ -36,6 +36,12 @@
 #define HYDRATION_BAR_HEIGHT 7
 
 #define hydration_real (hydration / HYDRATION_FACTOR) // real hydration
+
+#define wds_awaitCSC() \
+  do                   \
+  {                    \
+    key = os_GetCSC(); \
+  } while (!key)
 /* ------ */
 
 /* global vars */
@@ -47,7 +53,7 @@ special boolean values (one bit per value)
 | 1   | `1`   | drinking        |
 | 2   | `2`   | redraw          |
 | 3   | `4`   | hydration state |
-| 4   | `8`   |        -        |
+| 4   | `8`   | game over draw  |
 | 5   | `16`  |        -        |
 | 6   | `32`  |        -        |
 | 7   | `64`  |        -        |
@@ -61,7 +67,13 @@ flags |= 32; // enable 6th flag
 flags &= ~8; // disable 4th flag
 ```
 */
-uint8_t flags = 1;
+uint8_t flags;
+
+unsigned hydration, // raw hydration (real * 15)
+    score;          // raw score (real * 10)
+
+uint8_t hydration_cooldown; // hydration cooldown
+uint8_t saveTimer;          // save timer (save once every 600 ticks)
 
 uint8_t key; // key handler
 
@@ -74,6 +86,7 @@ gfx_sprite_t *hydration_bg; // background behind hydration value
 
 // function declarations
 void wds_drawBg(uint8_t state);
+void wds_initGame();
 
 // main function
 int main()
@@ -94,10 +107,7 @@ int main()
     os_PutStrFull("Please send the AppVar to the calculator.");
 
     // await keypress
-    do
-    {
-      key = os_GetCSC();
-    } while (!key);
+    wds_awaitCSC();
 
     return 1;
   }
@@ -111,13 +121,7 @@ int main()
   fontlib_SetWindow(TEXT_OFFSET, TEXT_OFFSET, GFX_LCD_WIDTH - TEXT_OFFSET, GFX_LCD_HEIGHT - TEXT_OFFSET);
   /* --------------- */
 
-  /* init vars */
-  unsigned hydration, // raw hydration (real * 15)
-      score;          // raw score (real * 10)
-
-  uint8_t hydration_cooldown = 0; // hydration cooldown
-  uint8_t saveTimer = 0;          // tick incrementer for save timer (save once every 600 ticks)
-
+  /* local vars */
   uint8_t text_font_height = fontlib_GetCurrentFontHeight(); // font height
 
   score_xpos = TEXT_OFFSET + fontlib_GetStringWidth(SCORE_LABEL);
@@ -130,9 +134,7 @@ int main()
       clock_now;                // gametick limiter; current clock tick
   /* --------- */
 
-  // temporary init hydration/score
-  hydration = (unsigned)(50.5 * HYDRATION_FACTOR);
-  score = 0;
+  wds_initGame();
 
   // begin drawing
   wds_beginDraw();
@@ -242,23 +244,34 @@ int main()
     // improperly hydrated
     else
     {
-      // set hydration flag for game over state
-      if (hydration & ~((unsigned)~0 >> 1))
-        flags &= ~4;
-      else
-        flags |= 4;
-
-      // draw game-over background
-      wds_drawBg(2 + !!(flags & 4));
-
-      // render
-      wds_drawFrame();
-
-      // await standard/exit keypress
-      do
+      if (!(flags & 8))
       {
-        key = os_GetCSC();
-      } while (key != sk_Enter && key != sk_2nd && key != sk_Clear);
+        // set hydration flag for game over state
+        if (hydration & ~((unsigned)~0 >> 1))
+          flags &= ~4;
+        else
+          flags |= 4;
+
+        // draw game-over background
+        wds_drawBg(2 + !!(flags & 4));
+
+        // render
+        wds_drawFrame();
+
+        // update flags
+        flags |= 8;
+      }
+
+      // await keypress
+      wds_awaitCSC();
+
+      // reinit on [2nd]/[enter]
+      switch (key)
+      {
+      case sk_Enter:
+      case sk_2nd:
+        wds_initGame();
+      }
     }
   }
   // loop until exit keypress
@@ -290,4 +303,16 @@ void wds_drawBg(uint8_t state)
   else
     // fill background with appropriate color
     gfx_FillScreen(5 + (state & 1));
+}
+
+void wds_initGame()
+{
+  // init from scratch
+  hydration = (unsigned)(50.5 * HYDRATION_FACTOR);
+  score = 0;
+  hydration_cooldown = 0;
+  saveTimer = 0;
+
+  // update flags
+  flags = 1;
 }

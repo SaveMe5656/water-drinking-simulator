@@ -142,7 +142,8 @@ int main()
 
   score_xpos = TEXT_OFFSET + fontlib_GetStringWidth(SCORE_LABEL);
   score_bg = gfx_MallocSprite(0x7f, text_font_height);
-  hydration_xpos = TEXT_OFFSET + ((HYDRATION_BAR_WIDTH - fontlib_GetStringWidth(HYDRATION_LABEL "100%")) / 2);
+  uint8_t hydration_xpos_label = TEXT_OFFSET + ((HYDRATION_BAR_WIDTH - fontlib_GetStringWidth(HYDRATION_LABEL "100%")) / 2); // x-position of hydration value label
+  hydration_xpos = hydration_xpos_label + fontlib_GetStringWidth(HYDRATION_LABEL);
   hydration_ypos = GFX_LCD_HEIGHT - (TEXT_OFFSET + text_font_height + fontlib_GetSpaceBelow() + HYDRATION_BAR_HEIGHT);
   hydration_bg = gfx_MallocSprite(fontlib_GetStringWidth("100%"), text_font_height);
 
@@ -230,7 +231,7 @@ int main()
         // game value labels
         fontlib_SetCursorPosition(TEXT_OFFSET, TEXT_OFFSET);
         fontlib_DrawString(SCORE_LABEL);
-        fontlib_SetCursorPosition(TEXT_OFFSET + text_font_height, hydration_ypos);
+        fontlib_SetCursorPosition(hydration_xpos_label, hydration_ypos);
         fontlib_DrawString(HYDRATION_LABEL);
 
         // update flags

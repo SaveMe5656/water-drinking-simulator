@@ -47,19 +47,33 @@
     key = os_GetCSC(); \
   } while (!key)
 
-// pseudo-function for drawing centered text relative to the whole screen, above the y-axis center line
-#define wds_DrawScreenCenteredStringAbove(string, lineOffset)                                                                                   \
-  fontlib_SetCursorPosition(                                                                                                                    \
-      (GFX_LCD_WIDTH - fontlib_GetStringWidth(string)) / 2,                                                                                     \
-      (GFX_LCD_HEIGHT - ((((lineOffset * 2) + 1) * text_font_height) + ((lineOffset * 2) * text_font_spacing) + fontlib_GetSpaceBelow())) / 2); \
+// pseudo-function to assist getting a y value relative to text line offset
+#define wds_GetYLineOffset(lineOffset) (((lineOffset * 2) + 1) * text_font_height) + ((lineOffset * 2) * text_font_spacing)
+
+// pseudo-function for drawing centered text relative to the whole screen, with offset above the y-axis center line
+#define wds_DrawCenteredStringAbove(string, lineOffset)                                   \
+  fontlib_SetCursorPosition(                                                              \
+      (GFX_LCD_WIDTH - fontlib_GetStringWidth(string)) / 2,                               \
+      (GFX_LCD_HEIGHT - (wds_GetYLineOffset(lineOffset) + fontlib_GetSpaceBelow())) / 2); \
   fontlib_DrawString(string)
 
-// pseudo-function for drawing centered text relative to the whole screen, below the y-axis center line
-#define wds_DrawScreenCenteredStringBelow(string, lineOffset)                                                                                   \
-  fontlib_SetCursorPosition(                                                                                                                    \
-      (GFX_LCD_WIDTH - fontlib_GetStringWidth(string)) / 2,                                                                                     \
-      (GFX_LCD_HEIGHT + ((((lineOffset * 2) + 1) * text_font_height) + ((lineOffset * 2) * text_font_spacing) + fontlib_GetSpaceAbove())) / 2); \
+// pseudo-function for drawing centered text relative to the whole screen, with offset below the y-axis center line
+#define wds_DrawCenteredStringBelow(string, lineOffset)                                   \
+  fontlib_SetCursorPosition(                                                              \
+      (GFX_LCD_WIDTH - fontlib_GetStringWidth(string)) / 2,                               \
+      (GFX_LCD_HEIGHT + (wds_GetYLineOffset(lineOffset) + fontlib_GetSpaceAbove())) / 2); \
   fontlib_DrawString(string)
+
+// pseudo-function for drawing an unsigned integer value centered roughly relative to the whole screen, with offset below the y-axis center line
+#define wds_DrawCenteredLabeledUIntBelow(label, value, lineOffset)                        \
+  fontlib_SetCursorPosition(                                                              \
+      (GFX_LCD_WIDTH / 2) - fontlib_GetStringWidth(label),                                \
+      (GFX_LCD_HEIGHT + (wds_GetYLineOffset(lineOffset) + fontlib_GetSpaceAbove())) / 2); \
+  fontlib_DrawString(label);                                                              \
+  fontlib_SetCursorPosition(                                                              \
+      GFX_LCD_WIDTH / 2,                                                                  \
+      (GFX_LCD_HEIGHT + (wds_GetYLineOffset(lineOffset) + fontlib_GetSpaceAbove())) / 2); \
+  fontlib_DrawUInt(value, 1);
 /* ------ */
 
 /* global vars */
@@ -278,19 +292,22 @@ int main()
         // select game over message
         if (flags & 4) // dehydrate
         {
-          wds_DrawScreenCenteredStringAbove("you perished of", 2);
-          wds_DrawScreenCenteredStringAbove("  dehydration...", 1);
+          wds_DrawCenteredStringAbove("you perished of", 2);
+          wds_DrawCenteredStringAbove("  dehydration...", 1);
         }
         else // overhydrate
         {
-          wds_DrawScreenCenteredStringAbove("you overhydrated", 2);
-          wds_DrawScreenCenteredStringAbove("and drowned!", 1);
+          wds_DrawCenteredStringAbove("you overhydrated", 2);
+          wds_DrawCenteredStringAbove("and drowned!", 1);
         }
 
         // finish game over output
-        fontlib_SetFont(text_font_bold, 0);
-        wds_DrawScreenCenteredStringBelow("game over", 0);
-        fontlib_SetFont(text_font_regular, 0);
+        fontlib_SetFont(text_font_bold, 0);                         // bold font
+        wds_DrawCenteredStringBelow("game over", 0);                // "game over"
+        fontlib_SetFont(text_font_regular, 0);                      // regular font
+        wds_DrawCenteredLabeledUIntBelow("score: ", score / 10, 1); // pre-point score
+        fontlib_DrawGlyph('.');                                     // decimal point
+        fontlib_DrawUInt(score % 10, 1);                            // post-point score
 
         // render
         wds_drawFrame();

@@ -1,5 +1,6 @@
 /* libraries */
 // standard libraries
+#include <stdlib.h> // `gfx_MallocSprite`
 #include <stdint.h> // good amount of vars using stdint types
 #include <time.h>   // rate limiter
 
@@ -29,8 +30,11 @@
 
 #define TEXT_OFFSET 5 // offset from screen edges to draw text at
 
-#define SCORE_LABEL "score: "         // gui label prefixing score value
-#define HYDRATION_LABEL "hydration: " // gui label prefixing hydration value
+#define SCORE_LABEL "score"                               // label prefixing score value
+#define HYDRATION_LABEL "hydration"                       // label prefixing hydration value
+#define LABEL_SUFFIX ": "                                 // suffix after gui labels
+#define SCORE_LABEL_FULL SCORE_LABEL LABEL_SUFFIX         // full gui label prefixing score value
+#define HYDRATION_LABEL_FULL HYDRATION_LABEL LABEL_SUFFIX // full gui label prefixing hydration value
 
 #define HYDRATION_BAR_WIDTH 102
 #define HYDRATION_BAR_HEIGHT 7
@@ -69,10 +73,7 @@
   fontlib_SetCursorPosition(                                                              \
       (GFX_LCD_WIDTH / 2) - fontlib_GetStringWidth(label),                                \
       (GFX_LCD_HEIGHT + (wds_GetYLineOffset(lineOffset) + fontlib_GetSpaceAbove())) / 2); \
-  fontlib_DrawString(label);                                                              \
-  fontlib_SetCursorPosition(                                                              \
-      GFX_LCD_WIDTH / 2,                                                                  \
-      (GFX_LCD_HEIGHT + (wds_GetYLineOffset(lineOffset) + fontlib_GetSpaceAbove())) / 2); \
+  fontlib_DrawString(label LABEL_SUFFIX);                                                 \
   fontlib_DrawUInt(value, 1);
 /* ------ */
 
@@ -154,10 +155,10 @@ int main()
   uint8_t text_font_height = fontlib_GetCurrentFontHeight(),
           text_font_spacing = fontlib_GetSpaceBelow() + fontlib_GetSpaceAbove(); // font height
 
-  score_xpos = TEXT_OFFSET + fontlib_GetStringWidth(SCORE_LABEL);
+  score_xpos = TEXT_OFFSET + fontlib_GetStringWidth(SCORE_LABEL_FULL);
   score_bg = gfx_MallocSprite(0x7f, text_font_height);
-  uint8_t hydration_xpos_label = TEXT_OFFSET + ((HYDRATION_BAR_WIDTH - fontlib_GetStringWidth(HYDRATION_LABEL "100%")) / 2); // x-position of hydration value label
-  hydration_xpos = hydration_xpos_label + fontlib_GetStringWidth(HYDRATION_LABEL);
+  uint8_t hydration_xpos_label = TEXT_OFFSET + ((HYDRATION_BAR_WIDTH - fontlib_GetStringWidth(HYDRATION_LABEL_FULL "100%")) / 2); // x-position of hydration value label
+  hydration_xpos = hydration_xpos_label + fontlib_GetStringWidth(HYDRATION_LABEL_FULL);
   hydration_ypos = GFX_LCD_HEIGHT - (TEXT_OFFSET + text_font_height + fontlib_GetSpaceBelow() + HYDRATION_BAR_HEIGHT);
   hydration_bg = gfx_MallocSprite(fontlib_GetStringWidth("100%"), text_font_height);
 
@@ -244,9 +245,9 @@ int main()
       {
         // game value labels
         fontlib_SetCursorPosition(TEXT_OFFSET, TEXT_OFFSET);
-        fontlib_DrawString(SCORE_LABEL);
+        fontlib_DrawString(SCORE_LABEL_FULL);
         fontlib_SetCursorPosition(hydration_xpos_label, hydration_ypos);
-        fontlib_DrawString(HYDRATION_LABEL);
+        fontlib_DrawString(HYDRATION_LABEL_FULL);
 
         // update flags
         flags &= ~2;
@@ -302,12 +303,12 @@ int main()
         }
 
         // finish game over output
-        fontlib_SetFont(text_font_bold, 0);                         // bold font
-        wds_DrawCenteredStringBelow("game over", 0);                // "game over"
-        fontlib_SetFont(text_font_regular, 0);                      // regular font
-        wds_DrawCenteredLabeledUIntBelow("score: ", score / 10, 1); // pre-point score
-        fontlib_DrawGlyph('.');                                     // decimal point
-        fontlib_DrawUInt(score % 10, 1);                            // post-point score
+        fontlib_SetFont(text_font_bold, 0);                           // bold font
+        wds_DrawCenteredStringBelow("game over", 0);                  // "game over"
+        fontlib_SetFont(text_font_regular, 0);                        // regular font
+        wds_DrawCenteredLabeledUIntBelow(SCORE_LABEL, score / 10, 1); // pre-point score
+        fontlib_DrawGlyph('.');                                       // decimal point
+        fontlib_DrawUInt(score % 10, 1);                              // post-point score
 
         // render
         wds_drawFrame();

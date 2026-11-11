@@ -37,14 +37,40 @@
 
 #define hydration_real (hydration / HYDRATION_FACTOR) // real hydration
 
+#define text_font_regular fontlib_GetFontByIndex(text_font_name, 0) // regular font
+#define text_font_bold fontlib_GetFontByIndex(text_font_name, 1)    // bold font
+
+// pseudo-function for awaiting keypress via `os_GetCSC()`
 #define wds_awaitCSC() \
   do                   \
   {                    \
     key = os_GetCSC(); \
   } while (!key)
+
+// pseudo-function for drawing centered text relative to the whole screen, above the y-axis center line
+#define wds_DrawScreenCenteredStringAbove(string, lineOffset)                                                                                   \
+  fontlib_SetCursorPosition(                                                                                                                    \
+      (GFX_LCD_WIDTH - fontlib_GetStringWidth(string)) / 2,                                                                                     \
+      (GFX_LCD_HEIGHT - ((((lineOffset * 2) + 1) * text_font_height) + ((lineOffset * 2) * text_font_spacing) + fontlib_GetSpaceBelow())) / 2); \
+  fontlib_DrawString(string)
+
+// pseudo-function for drawing centered text relative to the whole screen, below the y-axis center line
+#define wds_DrawScreenCenteredStringBelow(string, lineOffset)                                                                                   \
+  fontlib_SetCursorPosition(                                                                                                                    \
+      (GFX_LCD_WIDTH - fontlib_GetStringWidth(string)) / 2,                                                                                     \
+      (GFX_LCD_HEIGHT + ((((lineOffset * 2) + 1) * text_font_height) + ((lineOffset * 2) * text_font_spacing) + fontlib_GetSpaceAbove())) / 2); \
+  fontlib_DrawString(string)
 /* ------ */
 
 /* global vars */
+unsigned hydration, // raw hydration (real * 15)
+    score;          // raw score (real * 10)
+
+uint8_t hydration_cooldown; // hydration cooldown
+uint8_t saveTimer;          // save timer (save once every 600 ticks)
+
+uint8_t key; // key handler
+
 /**
 special boolean values (one bit per value)
 
@@ -69,14 +95,6 @@ flags &= ~8; // disable 4th flag
 */
 uint8_t flags;
 
-unsigned hydration, // raw hydration (real * 15)
-    score;          // raw score (real * 10)
-
-uint8_t hydration_cooldown; // hydration cooldown
-uint8_t saveTimer;          // save timer (save once every 600 ticks)
-
-uint8_t key; // key handler
-
 uint8_t score_xpos;         // x-position to draw score value
 gfx_sprite_t *score_bg;     // background behind score value
 uint8_t hydration_xpos,     // x-position to draw hydration value
@@ -97,9 +115,9 @@ int main()
 
   /* text properties */
   // get font
-  char *text_font = wds_getFont("Dr. Aller");
+  char *text_font_name = wds_getFont("Dr. Aller");
   // return if font init fail
-  if (text_font == NULL)
+  if (text_font_name == NULL)
   {
     // output error message
     os_PutStrLine("Missing font AppVar!");
@@ -112,23 +130,21 @@ int main()
     return 1;
   }
 
-  // set font
-  fontlib_SetFont(fontlib_GetFontByIndex(text_font, 0), 0); // 0: default | 1: bold
-
   // set text drawing properties
-  fontlib_SetColors(1, 0);
-  fontlib_SetTransparency(true);
-  fontlib_SetWindow(TEXT_OFFSET, TEXT_OFFSET, GFX_LCD_WIDTH - TEXT_OFFSET, GFX_LCD_HEIGHT - TEXT_OFFSET);
+  fontlib_SetFont(text_font_regular, 0);                                                                  // use regular font
+  fontlib_SetTransparency(true);                                                                          // enable transparency
+  fontlib_SetWindow(TEXT_OFFSET, TEXT_OFFSET, GFX_LCD_WIDTH - TEXT_OFFSET, GFX_LCD_HEIGHT - TEXT_OFFSET); // define text window
   /* --------------- */
 
   /* local vars */
-  uint8_t text_font_height = fontlib_GetCurrentFontHeight(); // font height
+  uint8_t text_font_height = fontlib_GetCurrentFontHeight(),
+          text_font_spacing = fontlib_GetSpaceBelow() + fontlib_GetSpaceAbove(); // font height
 
   score_xpos = TEXT_OFFSET + fontlib_GetStringWidth(SCORE_LABEL);
   score_bg = gfx_MallocSprite(0x7f, text_font_height);
-  hydration_xpos = TEXT_OFFSET + text_font_height + fontlib_GetStringWidth(HYDRATION_LABEL);
+  hydration_xpos = TEXT_OFFSET + ((HYDRATION_BAR_WIDTH - fontlib_GetStringWidth(HYDRATION_LABEL "100%")) / 2);
   hydration_ypos = GFX_LCD_HEIGHT - (TEXT_OFFSET + text_font_height + fontlib_GetSpaceBelow() + HYDRATION_BAR_HEIGHT);
-  hydration_bg = gfx_MallocSprite(text_font_height * 4, text_font_height);
+  hydration_bg = gfx_MallocSprite(fontlib_GetStringWidth("100%"), text_font_height);
 
   clock_t clock_tick = clock(), // gametick limiter; last clock tick
       clock_now;                // gametick limiter; current clock tick
@@ -248,12 +264,32 @@ int main()
       {
         // set hydration flag for game over state
         if (hydration & ~((unsigned)~0 >> 1))
-          flags &= ~4;
-        else
           flags |= 4;
+        else
+          flags &= ~4;
 
-        // draw game-over background
-        wds_drawBg(2 + !!(flags & 4));
+        // draw game over background
+        wds_drawBg(2 + !(flags & 4));
+
+        // set text color
+        fontlib_SetForegroundColor(0);
+
+        // select game over message
+        if (flags & 4) // dehydrate
+        {
+          wds_DrawScreenCenteredStringAbove("you perished of", 2);
+          wds_DrawScreenCenteredStringAbove("  dehydration...", 1);
+        }
+        else // overhydrate
+        {
+          wds_DrawScreenCenteredStringAbove("you overhydrated", 2);
+          wds_DrawScreenCenteredStringAbove("and drowned!", 1);
+        }
+
+        // finish game over output
+        fontlib_SetFont(text_font_bold, 0);
+        wds_DrawScreenCenteredStringBelow("game over", 0);
+        fontlib_SetFont(text_font_regular, 0);
 
         // render
         wds_drawFrame();
@@ -312,6 +348,9 @@ void wds_initGame()
   score = 0;
   hydration_cooldown = 0;
   saveTimer = 0;
+
+  // (re)set text color
+  fontlib_SetForegroundColor(1);
 
   // update flags
   flags = 1;

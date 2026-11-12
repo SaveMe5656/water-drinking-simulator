@@ -24,11 +24,22 @@
 /* --------- */
 
 /* macros */
-#define TICK_RATE 10        // amount of ticks/second
-#define COOLDOWN_START 23   // cooldown duration in ticks (10 ticks/sec * 2.28 seconds ~= 23 tick cooldown period)
-#define HYDRATION_FACTOR 15 // factor between real hydration to get raw hydration value (real == raw / 15`)
+#define progressbar_width 102
+#define progressbar_height 7
+#define progressbar_tile_width 1
+#define progressbar_tile_height progressbar_height
 
-#define TEXT_OFFSET 5 // offset from screen edges to draw text at
+#define TICK_RATE 10 // amount of ticks/second
+
+#define HYDRATION_START_PERCENT 50                                           // hydration percent to init new game with
+#define HYDRATION_FACTOR 15                                                  // factor between real hydration to get raw hydration value (real == raw / 15`)
+#define HYDRATION_INCREMENT_PERCENT 30                                       // percent to increment hydration by
+#define HYDRATION_INCREMENT (HYDRATION_INCREMENT_PERCENT * HYDRATION_FACTOR) // value to increment hydration by
+#define HYDRATION_WARN_PERCENT 15                                            // percent to warn about low hydration (turn hydration bar red)
+#define HYDRATION_COOLDOWN_START 23                                          // cooldown duration in ticks (10 ticks/sec * 2.28 seconds ~= 23 tick cooldown period)
+
+#define UI_OFFSET 5                                                            // offset from screen edges to draw text at
+#define HYDRATION_BAR_YPOS (GFX_LCD_HEIGHT - (UI_OFFSET + progressbar_height)) // y-position to draw the hydration bar
 
 #define SCORE_LABEL "score"                               // label prefixing score value
 #define HYDRATION_LABEL "hydration"                       // label prefixing hydration value
@@ -36,13 +47,10 @@
 #define SCORE_LABEL_FULL SCORE_LABEL LABEL_SUFFIX         // full gui label prefixing score value
 #define HYDRATION_LABEL_FULL HYDRATION_LABEL LABEL_SUFFIX // full gui label prefixing hydration value
 
-#define HYDRATION_BAR_WIDTH 102
-#define HYDRATION_BAR_HEIGHT 7
-
 #define hydration_real (hydration / HYDRATION_FACTOR) // real hydration
 
-#define text_font_regular fontlib_GetFontByIndex(text_font_name, 0) // regular font
-#define text_font_bold fontlib_GetFontByIndex(text_font_name, 1)    // bold font
+#define text_font_regular fontlib_GetFontByIndex(text_font_ptr, 0) // regular font
+#define text_font_bold fontlib_GetFontByIndex(text_font_ptr, 1)    // bold font
 
 // pseudo-function for awaiting keypress via `os_GetCSC()`
 #define wds_awaitCSC() \
@@ -51,8 +59,11 @@
     key = os_GetCSC(); \
   } while (!key)
 
+// pseudo-function to get specific hydration bar sprite from hydration value and draw position
+#define wds_getHydrationBarSprite(hyd, pos) progressbar_tiles[(pos) + (((((hyd) - (pos)) < progressbar_width) * (2 - !(flags & 16))) * progressbar_width)]
+
 // pseudo-function to assist getting a y value relative to text line offset
-#define wds_GetYLineOffset(lineOffset) (((lineOffset * 2) + 1) * text_font_height) + ((lineOffset * 2) * text_font_spacing)
+#define wds_GetYLineOffset(lineOffset) (((lineOffset * 2) + 1) * text_font_height) + (((lineOffset) * 2) * text_font_spacing)
 
 // pseudo-function for drawing centered text relative to the whole screen, with offset above the y-axis center line
 #define wds_DrawCenteredStringAbove(string, lineOffset)                                   \
@@ -74,7 +85,7 @@
       (GFX_LCD_WIDTH / 2) - fontlib_GetStringWidth(label),                                \
       (GFX_LCD_HEIGHT + (wds_GetYLineOffset(lineOffset) + fontlib_GetSpaceAbove())) / 2); \
   fontlib_DrawString(label LABEL_SUFFIX);                                                 \
-  fontlib_DrawUInt(value, 1);
+  fontlib_DrawUInt(value, 1)
 /* ------ */
 
 /* global vars */
@@ -93,9 +104,9 @@ special boolean values (one bit per value)
 | --- | ----- | --------------- |
 | 1   | `1`   | drinking        |
 | 2   | `2`   | redraw          |
-| 3   | `4`   | hydration state |
+| 3   | `4`   | game over type  |
 | 4   | `8`   | game over draw  |
-| 5   | `16`  |        -        |
+| 5   | `16`  | hydration state |
 | 6   | `32`  |        -        |
 | 7   | `64`  |        -        |
 | 8   | `128` |        -        |
@@ -130,9 +141,9 @@ int main()
 
   /* text properties */
   // get font
-  char *text_font_name = wds_getFont("Dr. Aller");
+  char *text_font_ptr = wds_getFont("Dr. Aller");
   // return if font init fail
-  if (text_font_name == NULL)
+  if (text_font_ptr == NULL)
   {
     // output error message
     os_PutStrLine("Missing font AppVar!");
@@ -146,20 +157,20 @@ int main()
   }
 
   // set text drawing properties
-  fontlib_SetFont(text_font_regular, 0);                                                                  // use regular font
-  fontlib_SetTransparency(true);                                                                          // enable transparency
-  fontlib_SetWindow(TEXT_OFFSET, TEXT_OFFSET, GFX_LCD_WIDTH - TEXT_OFFSET, GFX_LCD_HEIGHT - TEXT_OFFSET); // define text window
+  fontlib_SetFont(text_font_regular, 0);                                                          // use regular font
+  fontlib_SetTransparency(true);                                                                  // enable transparency
+  fontlib_SetWindow(UI_OFFSET, UI_OFFSET, GFX_LCD_WIDTH - UI_OFFSET, GFX_LCD_HEIGHT - UI_OFFSET); // define text window
   /* --------------- */
 
   /* local vars */
   uint8_t text_font_height = fontlib_GetCurrentFontHeight(),
           text_font_spacing = fontlib_GetSpaceBelow() + fontlib_GetSpaceAbove(); // font height
 
-  score_xpos = TEXT_OFFSET + fontlib_GetStringWidth(SCORE_LABEL_FULL);
+  score_xpos = UI_OFFSET + fontlib_GetStringWidth(SCORE_LABEL_FULL);
   score_bg = gfx_MallocSprite(0x7f, text_font_height);
-  uint8_t hydration_xpos_label = TEXT_OFFSET + ((HYDRATION_BAR_WIDTH - fontlib_GetStringWidth(HYDRATION_LABEL_FULL "100%")) / 2); // x-position of hydration value label
+  uint8_t hydration_xpos_label = UI_OFFSET + ((progressbar_width - fontlib_GetStringWidth(HYDRATION_LABEL_FULL "100%")) / 2); // x-position of hydration value label
   hydration_xpos = hydration_xpos_label + fontlib_GetStringWidth(HYDRATION_LABEL_FULL);
-  hydration_ypos = GFX_LCD_HEIGHT - (TEXT_OFFSET + text_font_height + fontlib_GetSpaceBelow() + HYDRATION_BAR_HEIGHT);
+  hydration_ypos = HYDRATION_BAR_YPOS - (text_font_height + fontlib_GetSpaceBelow());
   hydration_bg = gfx_MallocSprite(fontlib_GetStringWidth("100%"), text_font_height);
 
   clock_t clock_tick = clock(), // gametick limiter; last clock tick
@@ -182,7 +193,8 @@ int main()
 
     // properly hydrated
     if (hydration <= 101 * HYDRATION_FACTOR)
-    { /* game functions */
+    {
+      /* game functions */
       // hydration
       if (!hydration_cooldown)
       {
@@ -201,9 +213,9 @@ int main()
         case sk_Enter:
         case sk_2nd:
           // update hydration value
-          hydration += 30 * HYDRATION_FACTOR;
+          hydration += HYDRATION_INCREMENT;
           // init hydration cooldown
-          hydration_cooldown = COOLDOWN_START;
+          hydration_cooldown = HYDRATION_COOLDOWN_START;
         }
       }
       else
@@ -222,32 +234,58 @@ int main()
       }
 
       // print score value
-      gfx_Sprite(score_bg, score_xpos, TEXT_OFFSET);      // partial redraw
-      fontlib_SetCursorPosition(score_xpos, TEXT_OFFSET); // position text cursor
+      gfx_Sprite_NoClip(score_bg, score_xpos, UI_OFFSET); // partial redraw
+      fontlib_SetCursorPosition(score_xpos, UI_OFFSET);   // position text cursor
       fontlib_DrawUInt(score / 10, 1);                    // pre-point value
       fontlib_DrawGlyph('.');                             // decimal point
       fontlib_DrawUInt(score % 10, 1);                    // post-point value
 
-      // print on hydration update
+      // draw on hydration update
       if (
           hydration_real * HYDRATION_FACTOR == hydration - (HYDRATION_FACTOR - 1) // is real proportional to raw? (with respect for grace period)
           || flags & 2)
       {
-        // text value
-        gfx_Sprite(hydration_bg, hydration_xpos, hydration_ypos);  // partial redraw
-        fontlib_SetCursorPosition(hydration_xpos, hydration_ypos); // position text cursor (not centered; too lazy to figure out how to do that efficiently)
-        fontlib_DrawUInt(hydration_real, 1);                       // value
-        fontlib_DrawGlyph('%');                                    // percent sign
+        // print text value
+        gfx_Sprite_NoClip(hydration_bg, hydration_xpos, hydration_ypos); // partial redraw
+        fontlib_SetCursorPosition(hydration_xpos, hydration_ypos);       // position text cursor (not centered; too lazy to figure out how to do that efficiently)
+        fontlib_DrawUInt(hydration_real, 1);                             // value
+        fontlib_DrawGlyph('%');                                          // percent sign
+
+        // change progress bar color on hydration/flag mismatch
+        if ((hydration_real <= HYDRATION_WARN_PERCENT) == !(flags & 16))
+        {
+          // update flag
+          if (hydration_real > HYDRATION_WARN_PERCENT)
+            flags &= ~16;
+          else
+            flags |= 16;
+          // update progress bar color
+          for (uint8_t i = 0; i <= hydration_real; i++)
+            gfx_Sprite_NoClip(
+                wds_getHydrationBarSprite(hydration_real, i),
+                UI_OFFSET + i,
+                HYDRATION_BAR_YPOS);
+        }
+
+        // empty last hydration bar segment
+        gfx_Sprite_NoClip(progressbar_tiles[hydration_real + 1], UI_OFFSET + hydration_real + 1, HYDRATION_BAR_YPOS);
       }
 
       // resolve redraw
       if (flags & 2)
       {
         // game value labels
-        fontlib_SetCursorPosition(TEXT_OFFSET, TEXT_OFFSET);
+        fontlib_SetCursorPosition(UI_OFFSET, UI_OFFSET);
         fontlib_DrawString(SCORE_LABEL_FULL);
         fontlib_SetCursorPosition(hydration_xpos_label, hydration_ypos);
         fontlib_DrawString(HYDRATION_LABEL_FULL);
+
+        // hydration bar
+        for (uint8_t i = 0; i < progressbar_width; i++)
+          gfx_Sprite_NoClip(
+              wds_getHydrationBarSprite(hydration_real, i),
+              UI_OFFSET + i,
+              HYDRATION_BAR_YPOS);
 
         // update flags
         flags &= ~2;
@@ -256,10 +294,10 @@ int main()
       // increment/decrement
       hydration--;
       score++;
-      /* -------------- */
 
       // print screen
       wds_drawFrame();
+      /* -------------- */
 
       /* rate limiter */
       // wait to finish tick
@@ -278,7 +316,7 @@ int main()
     {
       if (!(flags & 8))
       {
-        // set hydration flag for game over state
+        // set hydration flag for game over type
         if (hydration & ~((unsigned)~0 >> 1))
           flags |= 4;
         else
@@ -349,7 +387,7 @@ void wds_drawBg(uint8_t state)
     zx7_Decompress(gfx_vbuffer, (state & 1) ? waterd33_compressed : waterd2_compressed);
 
     // update partial redraw buffers
-    gfx_GetSprite(score_bg, score_xpos, TEXT_OFFSET);
+    gfx_GetSprite(score_bg, score_xpos, UI_OFFSET);
     gfx_GetSprite(hydration_bg, hydration_xpos, hydration_ypos);
 
     // set redraw flag
@@ -363,7 +401,7 @@ void wds_drawBg(uint8_t state)
 void wds_initGame()
 {
   // init from scratch
-  hydration = (unsigned)(50.5 * HYDRATION_FACTOR);
+  hydration = (unsigned)((((2 * (HYDRATION_START_PERCENT)) + 1) * HYDRATION_FACTOR) / 2);
   score = 0;
   hydration_cooldown = 0;
   saveTimer = 0;

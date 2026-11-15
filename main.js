@@ -1,7 +1,7 @@
 // object to store/get game values
 let water = {
 	// game version
-	version: "v1.6.8",
+	version: "v1.6.9",
 	// temporary season value
 	season: "default",
 	// score object
@@ -288,6 +288,8 @@ function gameClicked() {
 		// begin help text fade on first click
 		water.help[0] && (water.help[0] = false);
 	}
+	// reset game on game over
+	else initGame();
 }
 
 // function for BGM playback

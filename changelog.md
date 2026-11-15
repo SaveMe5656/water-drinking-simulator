@@ -3,7 +3,15 @@ art by and inspiration thanks to *@motdab*
 
 
 ## changelog:
-### v1.6.8 (current)
+### v1.6.9 (current)
+  * clicking screen on game over now resets the game
+  * change the p5.js library linked to `p5.min.js` (smaller file meaning less for the browser to load; functionality still preserved)
+  * add anniversary banner
+  * add shameless wdsCE promotion &#x1f911;
+  
+  wds was first released on p5.js November 15, 2025. happy 1st anniversary to water drinking simulator! &#x1F382;&#x1F389;
+
+### v1.6.8
   * fix data fixer discarding saved non-legacy game data
   * add dev. offline compatability feature
   * more preparations for next version &#x1f440;

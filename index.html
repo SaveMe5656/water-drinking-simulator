@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-	<script id="p5.js" src="https://cdn.jsdelivr.net/npm/p5@latest/lib/p5.js"></script>
+	<script id="p5.js" src="https://cdn.jsdelivr.net/npm/p5@latest/lib/p5.min.js"></script>
 	<script src="/assets/cookies.js"></script>
 
 	<script src="/assets/load.js"></script>
@@ -52,6 +52,14 @@
 			width: 30%;
 			height: 1em;
 		}
+
+		div.infobox {
+			display: inline-block;
+			width: fit-content;
+			padding: 0.25em;
+			border-radius: 0.25em;
+			border: 2px solid;
+		}
 	</style>
 
 	<title>water drinking simulator</title>
@@ -73,6 +81,14 @@
 	</button>
 
 	<br><br>
+
+	<div id="anniversary" class="infobox"
+		style="display: none; color: #333c; background-color: #f5bc87cc; border-color: #7a5e43cc;" aria-hidden>
+		<emoji-img data="1F389"></emoji-img>
+		it's water drinking simulator's <span class="rainbow-hue ordinal">Xth</span> anniversary!
+		<emoji-img data="1F382"></emoji-img>
+	</div>
+	<br>
 
 	<div id="config">
 		<div id="options">
@@ -162,12 +178,65 @@
 
 	<br><br>
 
+	<div id="wdsCE" class="infobox" style="color: #333; background-color: #eeec; border-color: #888c;">
+		<a style="color: #09e;" target="_blank"
+			href="https://github.com/SaveMe5656/water-drinking-simulator/tree/wdsCE">&#x1f5d7; check out <b>wdsCE</b></a>,
+		the official &#x1f5a9;TI-84 Plus CE port!
+	</div>
+
+	<br><br>
+
 	<small>
 		<emoji-img data="1F36A"></emoji-img>
 		this page uses cookies to save configuration and gameplay data
 	</small>
 
 	<script src="theme.js"></script>
+
+	<script>
+		let rainbowHue = 0;
+		setInterval(() => {
+			rainbowHue++;
+			if (rainbowHue > 360) rainbowHue = 0;
+			document.querySelectorAll(".rainbow-hue").forEach(element =>
+				element.style.color = "hsl(" + rainbowHue + ", 100%, 37.5%)"
+			);
+		}, 25);
+
+		function getOrdinal(num) {
+			let suffix = "th";
+			if (Math.floor((num % 100) / 10) != 1)
+				switch (num % 10) {
+					case 1:
+						suffix = "st";
+						break;
+					case 2:
+						suffix = "nd";
+						break;
+					case 3:
+						suffix = "rd";
+						break;
+				}
+			return num + suffix;
+		}
+
+		function getWeek(date) {
+			let weekday = date.getDay(),
+				monthdate = date.getDate();
+
+			let week = [];
+			for (let i = 0; i < 7; i++)
+				week[i] = monthdate - weekday + i;
+
+			return week;
+		}
+
+		let today = new Date;
+		let anniversaryElement = document.querySelector("#anniversary");
+		anniversaryElement.querySelector("span.ordinal").innerText = getOrdinal(today.getFullYear() - 2025);
+		if (today.getMonth() == 10 && getWeek(today).includes(15)) // Nov. 15
+			anniversaryElement.style.display = "revert-rule";
+	</script>
 
 	<script id="debug">
 		(new Function(atob("ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoImRlYnVnIikucmVtb3ZlKCksbmV3IFVSTFNlYXJjaFBhcmFtcyhsb2NhdGlvbi5zZWFyY2gpLmhhcygiZGVidWciKSYmKGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJjb25maWciKS5pbm5lckhUTUwrPWA8YnI+PGRpdiBpZD0iZGVidWciPjxzdHJvbmc+ZGVidWc6PC9zdHJvbmc+PGJyPjxzcGFuPmxvZzo8L3NwYW4+IDxhIGhyZWY9ImphdmFzY3JpcHQ6Y29uc29sZS5kZWJ1Zyhkb2N1bWVudC5jb29raWUpIj5jb29raWVzPC9hPiA8YSBocmVmPSJqYXZhc2NyaXB0OmNvbnNvbGUuZGVidWcocmVxdWVzdERhdGEod2F0ZXIuc2F2ZSkpIj5kZWNvZGVkIHNhdmUgZGF0YTwvYT4gPGEgaHJlZj0iamF2YXNjcmlwdDpjb25zb2xlLmRlYnVnKHdhdGVyLmxldmVsKSI+dHJ1ZSBoeWRyYXRpb248L2E+IDxhIGhyZWY9ImphdmFzY3JpcHQ6Y29uc29sZS5kZWJ1Zyh3YXRlcikiPmdhbWUgb2JqZWN0PC9hPjxicj48c3Bhbj5leGVjdXRlOjwvc3Bhbj4gPGEgaHJlZj0iamF2YXNjcmlwdDpub0xvb3AoKSI+bm9Mb29wKCk8L2E+IDxhIGhyZWY9ImphdmFzY3JpcHQ6bG9vcCgpIj5sb29wKCk8L2E+IDxhIGhyZWY9ImphdmFzY3JpcHQ6ZHJhdygpIj5kcmF3KCk8L2E+IDxhIGhyZWY9ImphdmFzY3JpcHQ6ZGVsZXRlQ29va2llKHdhdGVyLnNhdmUpIj5kZWxldGUgZ2FtZSBkYXRhPC9hPjwvZGl2PmApOw==")))();
